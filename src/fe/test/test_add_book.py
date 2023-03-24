@@ -48,4 +48,3 @@ class TestAddBook:
             self.seller.seller_id = self.seller.seller_id + "_x"
             code = self.seller.add_book(self.store_id, 0, b)
             assert code != 200
-

@@ -40,8 +40,7 @@ class BookDB:
 
     def get_book_count(self):
         conn = sqlite.connect(self.book_db)
-        cursor = conn.execute(
-            "SELECT count(id) FROM book")
+        cursor = conn.execute("SELECT count(id) FROM book")
         row = cursor.fetchone()
         return row[0]
 
@@ -55,7 +54,9 @@ class BookDB:
             "price, currency_unit, binding, "
             "isbn, author_intro, book_intro, "
             "content, tags, picture FROM book ORDER BY id "
-            "LIMIT ? OFFSET ?", (size, start))
+            "LIMIT ? OFFSET ?",
+            (size, start),
+        )
         for row in cursor:
             book = Book()
             book.id = row[0]
@@ -83,7 +84,7 @@ class BookDB:
                     book.tags.append(tag)
             for i in range(0, random.randint(0, 9)):
                 if picture is not None:
-                    encode_str = base64.b64encode(picture).decode('utf-8')
+                    encode_str = base64.b64encode(picture).decode("utf-8")
                     book.pictures.append(encode_str)
             books.append(book)
             # print(tags.decode('utf-8'))
@@ -93,5 +94,3 @@ class BookDB:
             # print(tags)
 
         return books
-
-
