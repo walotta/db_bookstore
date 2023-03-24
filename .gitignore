@@ -1,0 +1,11 @@
+.DS_Store
+src/__pycache__
+.mypy_cache
+.DS_Store
+.vscode
+log.txt
+src/.pytest_cache
+*/__pycache__
+*/*/__pycache__
+*/*/*/__pycache__
+src/be.db
