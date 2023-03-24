@@ -4,8 +4,10 @@ src/__pycache__
 .DS_Store
 .vscode
 log.txt
-src/.pytest_cache
+.pytest_cache
+__pycache__
 */__pycache__
 */*/__pycache__
-*/*/*/__pycache__
-src/be.db
+be.db
+fe/data
+.coverage
