@@ -7,6 +7,7 @@ import requests
 import random
 import time
 import logging
+from typing import List, Tuple
 
 user_agent = [
     "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 "
@@ -82,7 +83,7 @@ class Scraper:
         self.pattern_number = re.compile(r"\d+\.?\d*")
         logging.basicConfig(filename="scraper.log", level=logging.ERROR)
 
-    def get_current_progress(self) -> ():
+    def get_current_progress(self) -> Tuple[str, int]:
         conn = sqlite3.connect(self.database)
         results = conn.execute("SELECT tag, page from progress where id = '0'")
         for row in results:
@@ -151,7 +152,7 @@ class Scraper:
         r = requests.get(url, headers=get_user_agent())
         r.encoding = "utf-8"
         h: etree.ElementBase = etree.HTML(r.text)
-        tags: [] = h.xpath(
+        tags: List = h.xpath(
             '/html/body/div[@id="wrapper"]/div[@id="content"]'
             '/div[@class="grid-16-8 clearfix"]/div[@class="article"]'
             '/div[@class=""]/div[@class="indent tag_cloud"]'
@@ -180,7 +181,7 @@ class Scraper:
         r.encoding = "utf-8"
         h: etree.Element = etree.HTML(r.text)
 
-        li_list: [] = h.xpath(
+        li_list: List = h.xpath(
             '/html/body/div[@id="wrapper"]/div[@id="content"]'
             '/div[@class="grid-16-8 clearfix"]'
             '/div[@class="article"]/div[@id="subject_list"]'
@@ -204,14 +205,12 @@ class Scraper:
             try:
                 delay = float(random.randint(0, 200)) / 100.0
                 time.sleep(delay)
-                self.crow_book_info(book_id)
+                # self.crow_book_info(book_id)
             except BaseException as e:
-                logging.error(
-                    logging.error("error when scrape {}, {}".format(book_id, str(e)))
-                )
+                logging.error("error when scrape {}, {}".format(book_id, str(e)))
         return has_next
 
-    def get_tag_list(self) -> [str]:
+    def get_tag_list(self) -> List[str]:
         ret = []
         conn = sqlite3.connect(self.database)
         results = conn.execute(
@@ -221,203 +220,202 @@ class Scraper:
             ret.append(row[0])
         return ret
 
-    def crow_book_info(self, book_id) -> bool:
-        conn = sqlite3.connect(self.database)
-        for _ in conn.execute("SELECT id from book where id = ('{}')".format(book_id)):
-            return
+    # def crow_book_info(self, book_id) -> bool:
+    #     conn = sqlite3.connect(self.database)
+    #     for _ in conn.execute("SELECT id from book where id = ('{}')".format(book_id)):
+    #         return
 
-        url = "https://book.douban.com/subject/{}/".format(book_id)
-        r = requests.get(url, headers=get_user_agent())
-        r.encoding = "utf-8"
-        h: etree.Element = etree.HTML(r.text)
-        e_text = h.xpath('/html/body/div[@id="wrapper"]/h1/span/text()')
-        if len(e_text) == 0:
-            return False
+    #     url = "https://book.douban.com/subject/{}/".format(book_id)
+    #     r = requests.get(url, headers=get_user_agent())
+    #     r.encoding = "utf-8"
+    #     h: etree.Element = etree.HTML(r.text)
+    #     e_text = h.xpath('/html/body/div[@id="wrapper"]/h1/span/text()')
+    #     if len(e_text) == 0:
+    #         return False
 
-        title = e_text[0]
+    #     title = e_text[0]
 
-        elements = h.xpath(
-            '/html/body/div[@id="wrapper"]'
-            '/div[@id="content"]/div[@class="grid-16-8 clearfix"]'
-            '/div[@class="article"]'
-        )
-        if len(elements) == 0:
-            return False
+    #     elements = h.xpath(
+    #         '/html/body/div[@id="wrapper"]'
+    #         '/div[@id="content"]/div[@class="grid-16-8 clearfix"]'
+    #         '/div[@class="article"]'
+    #     )
+    #     if len(elements) == 0:
+    #         return False
 
-        e_article = elements[0]
+    #     e_article = elements[0]
 
-        book_intro = ""
-        author_intro = ""
-        content = ""
-        tags = ""
+    #     book_intro = ""
+    #     author_intro = ""
+    #     content = ""
+    #     tags = ""
 
-        e_book_intro = e_article.xpath(
-            'div[@class="related_info"]'
-            '/div[@class="indent"][@id="link-report"]/*'
-            '/div[@class="intro"]/*/text()'
-        )
-        for line in e_book_intro:
-            line = line.strip()
-            if line != "":
-                book_intro = book_intro + line + "\n"
+    #     e_book_intro = e_article.xpath(
+    #         'div[@class="related_info"]'
+    #         '/div[@class="indent"][@id="link-report"]/*'
+    #         '/div[@class="intro"]/*/text()'
+    #     )
+    #     for line in e_book_intro:
+    #         line = line.strip()
+    #         if line != "":
+    #             book_intro = book_intro + line + "\n"
 
-        e_author_intro = e_article.xpath(
-            'div[@class="related_info"]'
-            '/div[@class="indent "]/*'
-            '/div[@class="intro"]/*/text()'
-        )
-        for line in e_author_intro:
-            line = line.strip()
-            if line != "":
-                author_intro = author_intro + line + "\n"
+    #     e_author_intro = e_article.xpath(
+    #         'div[@class="related_info"]'
+    #         '/div[@class="indent "]/*'
+    #         '/div[@class="intro"]/*/text()'
+    #     )
+    #     for line in e_author_intro:
+    #         line = line.strip()
+    #         if line != "":
+    #             author_intro = author_intro + line + "\n"
 
-        e_content = e_article.xpath(
-            'div[@class="related_info"]'
-            '/div[@class="indent"][@id="dir_' + book_id + '_full"]/text()'
-        )
-        for line in e_content:
-            line = line.strip()
-            if line != "":
-                content = content + line + "\n"
+    #     e_content = e_article.xpath(
+    #         'div[@class="related_info"]'
+    #         '/div[@class="indent"][@id="dir_' + book_id + '_full"]/text()'
+    #     )
+    #     for line in e_content:
+    #         line = line.strip()
+    #         if line != "":
+    #             content = content + line + "\n"
 
-        e_tags = e_article.xpath(
-            'div[@class="related_info"]/'
-            'div[@id="db-tags-section"]/'
-            'div[@class="indent"]/span/a/text()'
-        )
-        for line in e_tags:
-            line = line.strip()
-            if line != "":
-                tags = tags + line + "\n"
+    #     e_tags = e_article.xpath(
+    #         'div[@class="related_info"]/'
+    #         'div[@id="db-tags-section"]/'
+    #         'div[@class="indent"]/span/a/text()'
+    #     )
+    #     for line in e_tags:
+    #         line = line.strip()
+    #         if line != "":
+    #             tags = tags + line + "\n"
 
-        e_subject = e_article.xpath(
-            'div[@class="indent"]'
-            '/div[@class="subjectwrap clearfix"]'
-            '/div[@class="subject clearfix"]'
-        )
-        pic_href = e_subject[0].xpath('div[@id="mainpic"]/a/@href')
-        picture = None
-        if len(pic_href) > 0:
-            res = requests.get(pic_href[0], headers=get_user_agent())
-            picture = res.content
+    #     e_subject = e_article.xpath(
+    #         'div[@class="indent"]'
+    #         '/div[@class="subjectwrap clearfix"]'
+    #         '/div[@class="subject clearfix"]'
+    #     )
+    #     pic_href = e_subject[0].xpath('div[@id="mainpic"]/a/@href')
+    #     picture = None
+    #     if len(pic_href) > 0:
+    #         res = requests.get(pic_href[0], headers=get_user_agent())
+    #         picture = res.content
 
-        info_children = e_subject[0].xpath('div[@id="info"]/child::node()')
+    #     info_children = e_subject[0].xpath('div[@id="info"]/child::node()')
 
-        e_array = []
-        e_dict = dict()
+    #     e_array = []
+    #     e_dict = dict()
 
-        for e in info_children:
-            if isinstance(e, etree._ElementUnicodeResult):
-                e_dict["text"] = e
-            elif isinstance(e, etree._Element):
-                if e.tag == "br":
-                    e_array.append(e_dict)
-                    e_dict = dict()
-                else:
-                    e_dict[e.tag] = e
+    #     for e in info_children:
+    #         if isinstance(e, etree._ElementUnicodeResult):
+    #             e_dict["text"] = e
+    #         elif isinstance(e, etree._Element):
+    #             if e.tag == "br":
+    #                 e_array.append(e_dict)
+    #                 e_dict = dict()
+    #             else:
+    #                 e_dict[e.tag] = e
 
-        book_info = dict()
-        for d in e_array:
-            label = ""
-            span = d.get("span")
-            a_label = span.xpath("span/text()")
-            if len(a_label) > 0 and label == "":
-                label = a_label[0].strip()
-            a_label = span.xpath("text()")
-            if len(a_label) > 0 and label == "":
-                label = a_label[0].strip()
-            label = label.strip(":")
-            text = d.get("text").strip()
-            e_a = d.get("a")
-            text.strip()
-            text.strip(":")
-            if label == "作者" or label == "译者":
-                a = span.xpath("a/text()")
-                if text == "" and len(a) == 1:
-                    text = a[0].strip()
-                if text == "" and e_a is not None:
-                    text_a = e_a.xpath("text()")
-                    if len(text_a) > 0:
-                        text = text_a[0].strip()
-                        text = re.sub(r"\s+", " ", text)
-            if text != "":
-                book_info[label] = text
+    #     book_info = dict()
+    #     for d in e_array:
+    #         label = ""
+    #         span = d.get("span")
+    #         a_label = span.xpath("span/text()")
+    #         if len(a_label) > 0 and label == "":
+    #             label = a_label[0].strip()
+    #         a_label = span.xpath("text()")
+    #         if len(a_label) > 0 and label == "":
+    #             label = a_label[0].strip()
+    #         label = label.strip(":")
+    #         text = d.get("text").strip()
+    #         e_a = d.get("a")
+    #         text.strip()
+    #         text.strip(":")
+    #         if label == "作者" or label == "译者":
+    #             a = span.xpath("a/text()")
+    #             if text == "" and len(a) == 1:
+    #                 text = a[0].strip()
+    #             if text == "" and e_a is not None:
+    #                 text_a = e_a.xpath("text()")
+    #                 if len(text_a) > 0:
+    #                     text = text_a[0].strip()
+    #                     text = re.sub(r"\s+", " ", text)
+    #         if text != "":
+    #             book_info[label] = text
 
-        sql = (
-            "INSERT INTO book("
-            "id, title, author, "
-            "publisher, original_title, translator, "
-            "pub_year, pages, price, "
-            "currency_unit, binding, isbn, "
-            "author_intro, book_intro, content, "
-            "tags, picture)"
-            "VALUES("
-            "?, ?, ?, "
-            "?, ?, ?, "
-            "?, ?, ?, "
-            "?, ?, ?, "
-            "?, ?, ?, "
-            "?, ?)"
-        )
+    #     sql = (
+    #         "INSERT INTO book("
+    #         "id, title, author, "
+    #         "publisher, original_title, translator, "
+    #         "pub_year, pages, price, "
+    #         "currency_unit, binding, isbn, "
+    #         "author_intro, book_intro, content, "
+    #         "tags, picture)"
+    #         "VALUES("
+    #         "?, ?, ?, "
+    #         "?, ?, ?, "
+    #         "?, ?, ?, "
+    #         "?, ?, ?, "
+    #         "?, ?, ?, "
+    #         "?, ?)"
+    #     )
 
-        unit = None
-        price = None
-        pages = None
-        conn = sqlite3.connect(self.database)
-        try:
-            s_price = book_info.get("定价")
-            if s_price is None:
-                # price cannot be NULL
-                logging.error(
-                    "error when scrape book_id {}, cannot retrieve price...", book_id
-                )
-                return None
-            else:
-                e = re.findall(self.pattern_number, s_price)
-                if len(e) != 0:
-                    number = e[0]
-                    unit = s_price.replace(number, "").strip()
-                    price = int(float(number) * 100)
+    #     unit = None
+    #     price = None
+    #     pages = None
+    #     conn = sqlite3.connect(self.database)
+    #     try:
+    #         s_price = book_info.get("定价")
+    #         if s_price is None:
+    #             # price cannot be NULL
+    #             logging.error(
+    #                 "error when scrape book_id {}, cannot retrieve price...", book_id
+    #             )
+    #         else:
+    #             e = re.findall(self.pattern_number, s_price)
+    #             if len(e) != 0:
+    #                 number = e[0]
+    #                 unit = s_price.replace(number, "").strip()
+    #                 price = int(float(number) * 100)
 
-            s_pages = book_info.get("页数")
-            if s_pages is not None:
-                # pages can be NULL
-                e = re.findall(self.pattern_number, s_pages)
-                if len(e) != 0:
-                    pages = int(e[0])
+    #         s_pages = book_info.get("页数")
+    #         if s_pages is not None:
+    #             # pages can be NULL
+    #             e = re.findall(self.pattern_number, s_pages)
+    #             if len(e) != 0:
+    #                 pages = int(e[0])
 
-            conn.execute(
-                sql,
-                (
-                    book_id,
-                    title,
-                    book_info.get("作者"),
-                    book_info.get("出版社"),
-                    book_info.get("原作名"),
-                    book_info.get("译者"),
-                    book_info.get("出版年"),
-                    pages,
-                    price,
-                    unit,
-                    book_info.get("装帧"),
-                    book_info.get("ISBN"),
-                    author_intro,
-                    book_intro,
-                    content,
-                    tags,
-                    picture,
-                ),
-            )
-            conn.commit()
-        except sqlite3.Error as e:
-            logging(str(e))
-            conn.rollback()
-        except TypeError as e:
-            logging.error("error when scrape {}, {}".format(book_id, str(e)))
-            conn.rollback()
-            return False
-        conn.close()
-        return True
+    #         conn.execute(
+    #             sql,
+    #             (
+    #                 book_id,
+    #                 title,
+    #                 book_info.get("作者"),
+    #                 book_info.get("出版社"),
+    #                 book_info.get("原作名"),
+    #                 book_info.get("译者"),
+    #                 book_info.get("出版年"),
+    #                 pages,
+    #                 price,
+    #                 unit,
+    #                 book_info.get("装帧"),
+    #                 book_info.get("ISBN"),
+    #                 author_intro,
+    #                 book_intro,
+    #                 content,
+    #                 tags,
+    #                 picture,
+    #             ),
+    #         )
+    #         conn.commit()
+    #     except sqlite3.Error as e:
+    #         logging(str(e))
+    #         conn.rollback()
+    #     except TypeError as e:
+    #         logging.error("error when scrape {}, {}".format(book_id, str(e)))
+    #         conn.rollback()
+    #         return False
+    #     conn.close()
+    #     return True
 
 
 if __name__ == "__main__":

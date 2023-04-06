@@ -3,8 +3,9 @@ import threading
 from urllib.parse import urljoin
 from be import serve
 from fe import conf
+from typing import Optional
 
-thread: threading.Thread = None
+thread: Optional[threading.Thread] = None
 
 
 # 修改这里启动后端程序，如果不需要可删除这行代码

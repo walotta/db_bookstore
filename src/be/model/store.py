@@ -1,6 +1,7 @@
 import logging
 import os
 import sqlite3 as sqlite
+from typing import Optional
 
 
 class Store:
@@ -50,7 +51,7 @@ class Store:
         return sqlite.connect(self.database)
 
 
-database_instance: Store = None
+database_instance: Optional[Store] = None
 
 
 def init_database(db_path):

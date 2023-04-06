@@ -3,14 +3,15 @@ from fe.bench.workload import NewOrder
 from fe.bench.workload import Payment
 import time
 import threading
+from typing import List
 
 
 class Session(threading.Thread):
     def __init__(self, wl: Workload):
         threading.Thread.__init__(self)
         self.workload = wl
-        self.new_order_request = []
-        self.payment_request = []
+        self.new_order_request: List = []
+        self.payment_request: List = []
         self.payment_i = 0
         self.new_order_i = 0
         self.payment_ok = 0

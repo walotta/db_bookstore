@@ -3,6 +3,7 @@ import sqlite3 as sqlite
 import random
 import base64
 import simplejson as json
+from typing import List, Tuple, Optional
 
 
 class Book:
@@ -15,13 +16,14 @@ class Book:
     pub_year: str
     pages: int
     price: int
+    currency_unit: int
     binding: str
     isbn: str
     author_intro: str
     book_intro: str
     content: str
-    tags: [str]
-    pictures: [bytes]
+    tags: List[str]
+    pictures: List[str]
 
     def __init__(self):
         self.tags = []
@@ -44,7 +46,7 @@ class BookDB:
         row = cursor.fetchone()
         return row[0]
 
-    def get_book_info(self, start, size) -> [Book]:
+    def get_book_info(self, start, size) -> List[Book]:
         books = []
         conn = sqlite.connect(self.book_db)
         cursor = conn.execute(
