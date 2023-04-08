@@ -9,5 +9,7 @@ __pycache__
 */__pycache__
 */*/__pycache__
 be.db
-fe/data
+fe/data/*.db
 .coverage
+build
+bookstore.egg-info
