@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Optional
 import sqlite3 as sqlite
+from typing import Optional
 
 
 class Store:

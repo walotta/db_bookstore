@@ -1,12 +1,13 @@
 import requests
 from urllib.parse import urljoin
+from typing import Tuple
 
 
 class Auth:
     def __init__(self, url_prefix):
         self.url_prefix = urljoin(url_prefix, "auth/")
 
-    def login(self, user_id: str, password: str, terminal: str) -> (int, str):
+    def login(self, user_id: str, password: str, terminal: str) -> Tuple[int, str]:
         json = {"user_id": user_id, "password": password, "terminal": terminal}
         url = urljoin(self.url_prefix, "login")
         r = requests.post(url, json=json)
