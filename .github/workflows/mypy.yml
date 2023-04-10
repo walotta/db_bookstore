@@ -17,8 +17,6 @@ jobs:
         run: pip install mypy
       - name: Install dependencies
         run: pip install -r requirements.txt
-      # - name: Install mypy type
-      #   run: mypy --install-types
       - name: Run mypy
         uses: sasanquaneuf/mypy-github-action@releases/v1
         with:
