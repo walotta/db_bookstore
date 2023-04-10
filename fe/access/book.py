@@ -16,14 +16,14 @@ class Book:
     pub_year: str
     pages: int
     price: int
-    currency_unit: Any
+    currency_unit: int
     binding: str
     isbn: str
     author_intro: str
     book_intro: str
     content: str
     tags: List[str]
-    pictures: List[bytes]
+    pictures: List[str]
 
     def __init__(self):
         self.tags = []
@@ -84,7 +84,7 @@ class BookDB:
             for tag in tags.split("\n"):
                 if tag.strip() != "":
                     book.tags.append(tag)
-            for i in range(0, random.randint(0, 9)):
+            for _ in range(0, random.randint(0, 9)):
                 if picture is not None:
                     encode_str = base64.b64encode(picture).decode("utf-8")
                     book.pictures.append(encode_str)
