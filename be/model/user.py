@@ -2,8 +2,8 @@ import jwt
 import time
 import logging
 import sqlite3 as sqlite
-from be.model import error
-from be.model import db_conn
+from . import error
+from . import db_conn
 from typing import Tuple, Dict, Any
 
 # encode a json string like:

@@ -1,4 +1,4 @@
-from be.model import store
+from . import store
 
 
 class DBConn:

@@ -2,8 +2,8 @@ import sqlite3 as sqlite
 import uuid
 import json
 import logging
-from be.model import db_conn
-from be.model import error
+from . import db_conn
+from . import error
 from typing import List, Tuple
 
 
