@@ -14,13 +14,13 @@ class DBClient:
     def database_init(self) -> None:
         self.db: Database = self.client[self.database]
         self.userCol: Collection[Any] = self.db["user"]
-        self.userCol.create_index("user_id", unique=True)
+        self.userCol.create_index([("user_id", 1)], unique=True)
         self.storeCol: Collection[Any] = self.db["store"]
-        self.storeCol.create_index("store_id", unique=True)
-        self.bookCol: Collection[Any] = self.db["book"]
-        self.bookCol.create_index("book_id", unique=True)
+        self.storeCol.create_index(
+            [("store_id", 1), ("book_list.book_id", 1)], unique=True
+        )
         self.newOrderCol: Collection[Any] = self.db["new_order"]
-        self.newOrderCol.create_index("order_id", unique=True)
+        self.newOrderCol.create_index([("order_id", 1)], unique=True)
 
     def database_reset(self) -> None:
         self.client.drop_database(self.database)
