@@ -23,14 +23,15 @@ def be_shutdown():
     shutdown_server()
     return "Server shutting down..."
 
+def be_init():
+    db_init()
 
 def be_run():
     this_path = os.path.dirname(__file__)
     parent_path = os.path.dirname(this_path)
     log_file = os.path.join(parent_path, "app.log")
-    db_init()
 
-    logging.basicConfig(filename=log_file, level=logging.ERROR)
+    logging.basicConfig(filename=log_file, level=logging.DEBUG)
     handler = logging.StreamHandler()
     formatter = logging.Formatter(
         "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"

@@ -15,6 +15,7 @@ def run_backend():
 
 
 def pytest_configure(config):
+    serve.be_init()
     global thread
     print("frontend begin test")
     thread = threading.Thread(target=run_backend)
