@@ -8,6 +8,7 @@ log.txt
 __pycache__
 */__pycache__
 */*/__pycache__
+fe/data/book_lx.db
 .coverage
 build
 bookstore.egg-info
