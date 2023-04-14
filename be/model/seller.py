@@ -64,7 +64,7 @@ class Seller(db_conn.DBConn):
                 return error.error_exist_store_id(store_id)
 
             new_store = StoreTemp(store_id=store_id, user_id=user_id)
-            self.conn.storeCol.insert_one(new_store)
+            self.conn.storeCol.insert_one(new_store.to_dict())
         except PyMongoError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
