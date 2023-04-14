@@ -23,9 +23,9 @@ class UserTemp:
             "user_id": self.user_id,
             "password": self.password,
             "balance": self.balance,
-            "store_id_list": self.store_id_list,
             "token": self.token,
             "terminal": self.terminal,
+            "store_id_list": self.store_id_list,
         }
 
     @staticmethod
@@ -34,7 +34,7 @@ class UserTemp:
             data["user_id"],
             data["password"],
             data["balance"],
-            data["store_id_list"],
             data["token"],
             data["terminal"],
+            data["store_id_list"],
         )
