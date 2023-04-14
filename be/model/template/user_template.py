@@ -4,23 +4,23 @@ from typing import Optional, List, Dict, Union
 class UserTemp:
     def __init__(
         self,
-        name: str,
+        user_id: str,
         password: str,
-        balabce: int,
+        balance: int,
+        token: str,
+        terminal: str,
         store_id_list: List[str] = [],
-        token: Optional[str] = None,
-        terminal: Optional[str] = None,
     ):
-        self.name: str = name
+        self.user_id: str = user_id
         self.password: str = password
-        self.balance: int = balabce
+        self.balance: int = balance
+        self.token: str = token
+        self.terminal: str = terminal
         self.store_id_list: List[str] = store_id_list
-        self.token: Optional[str] = token
-        self.terminal: Optional[str] = terminal
 
     def to_dict(self) -> Dict[str, Union[str, int, List[str], Optional[str]]]:
         return {
-            "name": self.name,
+            "user_id": self.user_id,
             "password": self.password,
             "balance": self.balance,
             "store_id_list": self.store_id_list,
@@ -31,7 +31,7 @@ class UserTemp:
     @staticmethod
     def from_dict(data: dict) -> "UserTemp":
         return UserTemp(
-            data["name"],
+            data["user_id"],
             data["password"],
             data["balance"],
             data["store_id_list"],

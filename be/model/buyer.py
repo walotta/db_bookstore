@@ -1,4 +1,3 @@
-import sqlite3 as sqlite
 import uuid
 import json
 import logging
