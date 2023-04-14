@@ -25,19 +25,16 @@ class StoreTemp:
         store_id: str,
         user_id: str,
         book_list: List[StoreBookTmp] = [],
-        order_id_list: List[str] = [],
     ):
         self.store_id: str = store_id
         self.user_id: str = user_id
         self.book_list: List[StoreBookTmp] = book_list
-        self.order_id_list: List[str] = order_id_list
 
     def to_dict(self) -> dict:
         return {
             "store_id": self.store_id,
             "user_id": self.user_id,
             "book_list": [book.to_dict() for book in self.book_list],
-            "order_id_list": self.order_id_list,
         }
 
     @staticmethod
@@ -46,5 +43,4 @@ class StoreTemp:
             data["store_id"],
             data["user_id"],
             [StoreBookTmp.from_dict(book) for book in data["book_list"]],
-            data["order_id_list"],
         )

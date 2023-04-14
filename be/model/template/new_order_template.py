@@ -3,9 +3,16 @@ from typing import Union, Dict
 
 class NewOrderTemp:
     def __init__(
-        self, order_id: str, store_id: str, book_id: str, count: int, price: int
+        self,
+        order_id: str,
+        user_id: str,
+        store_id: str,
+        book_id: str,
+        count: int,
+        price: int,
     ):
         self.order_id: str = order_id
+        self.user_id: str = user_id
         self.store_id: str = store_id
         self.book_id: str = book_id
         self.count: int = count
@@ -14,6 +21,7 @@ class NewOrderTemp:
     def to_dict(self) -> Dict[str, Union[str, int]]:
         return {
             "order_id": self.order_id,
+            "user_id": self.user_id,
             "store_id": self.store_id,
             "book_id": self.book_id,
             "count": self.count,
@@ -24,6 +32,7 @@ class NewOrderTemp:
     def from_dict(data: dict) -> "NewOrderTemp":
         return NewOrderTemp(
             data["order_id"],
+            data["user_id"],
             data["store_id"],
             data["book_id"],
             data["count"],
