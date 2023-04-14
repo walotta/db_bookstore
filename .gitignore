@@ -8,8 +8,6 @@ log.txt
 __pycache__
 */__pycache__
 */*/__pycache__
-be.db
-fe/data/*.db
 .coverage
 build
 bookstore.egg-info
