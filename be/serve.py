@@ -33,7 +33,7 @@ def be_run():
     parent_path = os.path.dirname(this_path)
     log_file = os.path.join(parent_path, "app.log")
 
-    logging.basicConfig(filename=log_file, level=logging.DEBUG)
+    logging.basicConfig(filename=log_file, level=logging.ERROR)
     handler = logging.StreamHandler()
     formatter = logging.Formatter(
         "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"

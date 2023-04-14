@@ -160,7 +160,7 @@ class Buyer(db_conn.DBConn):
                 return error.error_authorization_fail()
 
             result = self.conn.userCol.update_one(
-                {"user_id": user_id}, {"$inc": {"balance", add_value}}
+                {"user_id": user_id}, {"$inc": {"balance": add_value}}
             )
             if result.modified_count == 0:
                 return error.error_non_exist_user_id(user_id)
