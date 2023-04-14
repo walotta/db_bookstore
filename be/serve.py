@@ -23,8 +23,10 @@ def be_shutdown():
     shutdown_server()
     return "Server shutting down..."
 
+
 def be_init():
     db_init()
+
 
 def be_run():
     this_path = os.path.dirname(__file__)

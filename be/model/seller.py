@@ -28,8 +28,9 @@ class Seller(db_conn.DBConn):
             new_book = StoreBookTmp(
                 book_id=book_id, book_info=book_json_str, stock_level=stock_level
             )
-            self.conn.storeCol.update_one({'store_id':store_id},
-                                          {'$push':{'book_list':new_book.to_dict()}})
+            self.conn.storeCol.update_one(
+                {"store_id": store_id}, {"$push": {"book_list": new_book.to_dict()}}
+            )
         except PyMongoError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
