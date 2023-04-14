@@ -2,7 +2,7 @@ import pymongo
 from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.collection import Collection
-from typing import Any
+from typing import Any, Optional
 
 
 class DBClient:
@@ -25,3 +25,21 @@ class DBClient:
     def database_reset(self) -> None:
         self.client.drop_database(self.database)
         self.database_init()
+
+    def database_close(self) -> None:
+        self.client.close()
+
+
+database_instance: Optional[DBClient] = None
+
+
+def db_init() -> None:
+    global database_instance
+    database_instance = DBClient()
+    database_instance.database_init()
+
+
+def get_db_conn() -> DBClient:
+    global database_instance
+    assert database_instance is not None, "Database not initialized"
+    return database_instance
