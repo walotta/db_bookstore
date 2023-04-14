@@ -11,3 +11,5 @@ __pycache__
 .coverage
 build
 bookstore.egg-info
+be/*_model
+fe/data/book_*.db
