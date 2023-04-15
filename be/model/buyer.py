@@ -42,7 +42,9 @@ class Buyer(db_conn.DBConn):
                 book_info_id = match_book.book_info_id
                 book_info = self.conn.bookInfoCol.find_one(
                     {"_id": book_info_id}, {"_id": 0, "book_info": 1}
-                )["book_info"]
+                )
+                assert book_info is not None
+                book_info = book_info["book_info"]
                 book_info_json = json.loads(book_info)
                 price = book_info_json.get("price")
 

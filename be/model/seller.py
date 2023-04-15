@@ -25,14 +25,14 @@ class Seller(db_conn.DBConn):
             if self.book_id_exist(store_id, book_id):
                 return error.error_exist_book_id(book_id)
 
-            result = self.conn.bookInfoCol.insert_one({'book_info':book_json_str})
+            result = self.conn.bookInfoCol.insert_one({"book_info": book_json_str})
             info_id = result.inserted_id
             new_book = StoreBookTmp(
                 book_id=book_id, book_info_id=info_id, stock_level=stock_level
             )
             self.conn.storeCol.update_one(
-                    {"store_id": store_id}, {"$push": {"book_list": new_book.to_dict()}}
-                )
+                {"store_id": store_id}, {"$push": {"book_list": new_book.to_dict()}}
+            )
         except PyMongoError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
