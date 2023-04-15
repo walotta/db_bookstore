@@ -19,6 +19,7 @@ class DBClient:
         self.storeCol.create_index(
             [("store_id", 1), ("book_list.book_id", 1)], unique=True
         )
+        self.bookInfoCol: Collection[Any] = self.db["book_info"]
         self.newOrderCol: Collection[Any] = self.db["new_order"]
         self.newOrderCol.create_index([("order_id", 1),('book_id',1)], unique=True)
 

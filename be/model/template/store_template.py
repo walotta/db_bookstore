@@ -2,21 +2,21 @@ from typing import Dict, List, Union
 
 
 class StoreBookTmp:
-    def __init__(self, book_id: str, book_info: str, stock_level: int):
+    def __init__(self, book_id: str, book_info_id: str, stock_level: int):
         self.book_id: str = book_id
-        self.book_info: str = book_info
+        self.book_info_id: str = book_info_id
         self.stock_level: int = stock_level
 
     def to_dict(self) -> Dict[str, Union[str, int]]:
         return {
             "book_id": self.book_id,
-            "book_info": self.book_info,
+            "book_info_id": self.book_info_id,
             "stock_level": self.stock_level,
         }
 
     @staticmethod
     def from_dict(data: dict) -> "StoreBookTmp":
-        return StoreBookTmp(data["book_id"], data["book_info"], data["stock_level"])
+        return StoreBookTmp(data["book_id"], data["book_info_id"], data["stock_level"])
 
 
 class StoreTemp:
