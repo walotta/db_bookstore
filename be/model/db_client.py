@@ -20,7 +20,7 @@ class DBClient:
             [("store_id", 1), ("book_list.book_id", 1)], unique=True
         )
         self.newOrderCol: Collection[Any] = self.db["new_order"]
-        self.newOrderCol.create_index([("order_id", 1)], unique=True)
+        self.newOrderCol.create_index([("order_id", 1),('book_id',1)], unique=True)
 
     def database_reset(self) -> None:
         self.client.drop_database(self.database)

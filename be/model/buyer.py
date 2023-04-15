@@ -65,7 +65,7 @@ class Buyer(db_conn.DBConn):
                     count=count,
                     price=price,
                 )
-                self.conn.newOrderCol.insert_one(new_order)
+                self.conn.newOrderCol.insert_one(new_order.to_dict())
 
             order_id = uid
         except PyMongoError as e:
