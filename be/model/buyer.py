@@ -5,7 +5,7 @@ from pymongo.errors import PyMongoError
 from . import db_conn
 from . import error
 from typing import List, Tuple, Dict, Any
-from .template.new_order_template import NewOrderTemp
+from .template.new_order_template import NewOrderTemp, NewOrderBookItemTemp
 from .template.store_template import StoreBookTmp
 from .template.user_template import UserTemp
 
@@ -25,6 +25,7 @@ class Buyer(db_conn.DBConn):
                 return error.error_non_exist_store_id(store_id) + (order_id,)
             uid = "{}_{}_{}".format(user_id, store_id, str(uuid.uuid1()))
 
+            book_list=[]
             for book_id, count in id_and_count:
                 pipeline: List[Dict[str, Any]] = [
                     {"$match": {"store_id": store_id}},
@@ -61,16 +62,15 @@ class Buyer(db_conn.DBConn):
                 )
                 if result.modified_count == 0:
                     return error.error_stock_level_low(book_id) + (order_id,)
+                book_list.append(NewOrderBookItemTemp(book_id=book_id, count=count, price=price))
 
-                new_order = NewOrderTemp(
-                    order_id=uid,
-                    user_id=user_id,
-                    store_id=store_id,
-                    book_id=book_id,
-                    count=count,
-                    price=price,
-                )
-                self.conn.newOrderCol.insert_one(new_order.to_dict())
+            new_order = NewOrderTemp(
+                order_id=uid,
+                user_id=user_id,
+                store_id=store_id,
+                book_list=book_list,
+            )
+            self.conn.newOrderCol.insert_one(new_order.to_dict())
 
             order_id = uid
         except PyMongoError as e:
@@ -83,7 +83,6 @@ class Buyer(db_conn.DBConn):
         return 200, "ok", order_id
 
     def payment(self, user_id: str, password: str, order_id: str) -> Tuple[int, str]:
-        conn = self.conn
         try:
             result = self.conn.newOrderCol.find_one({"order_id": order_id})
             if result is None:
@@ -93,6 +92,7 @@ class Buyer(db_conn.DBConn):
             order_id = match_order.order_id
             buyer_id = match_order.user_id
             store_id = match_order.store_id
+            book_list = match_order.book_list
 
             if buyer_id != user_id:
                 return error.error_authorization_fail()
@@ -116,12 +116,10 @@ class Buyer(db_conn.DBConn):
             if not self.user_id_exist(seller_id):
                 return error.error_non_exist_user_id(seller_id)
 
-            results = self.conn.newOrderCol.find({"order_id": order_id})
             total_price = 0
-            for row in results:
-                tmp_order = NewOrderTemp.from_dict(row)
-                count = tmp_order.count
-                price = tmp_order.price
+            for row in book_list:
+                count = row.count
+                price = row.price
                 total_price = total_price + price * count
 
             if balance < total_price:
