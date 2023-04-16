@@ -11,12 +11,12 @@ class UserInterface:
         cursor = self.userCol.find_one({"user_id": user_id})
         return cursor is not None
     
-    def find_user(self, user_id:str) -> Optional[UserTemp]:
-        result = self.userCol.find_one({"user_id": user_id})
-        if result is None:
-            return None
-        else:
-            return UserTemp.from_dict(result)
+    # def find_user(self, user_id:str) -> Optional[UserTemp]:
+    #     result = self.userCol.find_one({"user_id": user_id})
+    #     if result is None:
+    #         return None
+    #     else:
+    #         return UserTemp.from_dict(result)
         
     def add_balance(self, user_id:str, count:int) -> int:
         result = self.userCol.update_one(
@@ -42,3 +42,38 @@ class UserInterface:
             return None
         else:
             return result["balance"]
+        
+    def get_token(self, user_id:str) -> Optional[str]:
+        result = self.userCol.find_one(
+                {"user_id": user_id}, {"_id": 0, "token": 1}
+            )
+        if result is None:
+            return None
+        else:
+            return result["token"]
+        
+    def insert_one_user(self, user:UserTemp)->None:
+        self.userCol.insert_one(user.to_dict())
+
+    def update_token_terminal(self, user_id:str, token:str, terminal:str)->int:
+        result=self.userCol.update_one(
+            {"user_id": user_id}, {"$set": {"token": token, "terminal": terminal}}
+        )
+        return result.modified_count
+    
+    def delete_user(self, user_id:str)->int:
+        result=self.userCol.delete_one({"user_id": user_id})
+        return result.deleted_count
+    
+    def update_password(self, user_id:str, password:str, token:str, terminal:str)->int:
+        result = self.userCol.update_one(
+                {"user_id": user_id},
+                {
+                    "$set": {
+                        "password": password,
+                        "token": token,
+                        "terminal": terminal,
+                    }
+                },
+            )
+        return result.modified_count
