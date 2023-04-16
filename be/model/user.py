@@ -3,7 +3,7 @@ import time
 import logging
 from pymongo.errors import DuplicateKeyError, PyMongoError
 from . import error
-from . import db_conn
+from .db import db_conn
 from .template.user_template import UserTemp
 from typing import Tuple, Dict, Any
 

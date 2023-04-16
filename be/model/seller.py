@@ -1,6 +1,6 @@
 from pymongo.errors import PyMongoError
 from . import error
-from . import db_conn
+from .db import db_conn
 from .template.store_template import StoreBookTmp, StoreTemp
 from typing import List, Tuple
 
