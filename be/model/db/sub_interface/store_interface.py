@@ -59,3 +59,23 @@ class StoreInterface:
             return None
         else:
             return result["user_id"]
+        
+    def insert_one_book(self,store_id:str, book_id:str,stock_level:int,book_info:str)->None:
+        result = self.bookInfoCol.insert_one({"book_info": book_info})
+        info_id = result.inserted_id
+        new_book = StoreBookTmp(
+            book_id=book_id, book_info_id=info_id, stock_level=stock_level
+        )
+        self.storeCol.update_one(
+            {"store_id": store_id}, {"$push": {"book_list": new_book.to_dict()}}
+        )
+
+    def add_stock_level(self,store_id:str,book_id:str,add_stock_level:int)->int:
+        result=self.storeCol.update_one(
+                {"store_id": store_id, "book_list.book_id": book_id},
+                {"$inc": {"book_list.$.stock_level": add_stock_level}},
+            )
+        return result.modified_count
+    
+    def insert_one_store(self, new_store:StoreTemp) -> None:
+        self.storeCol.insert_one(new_store.to_dict())
