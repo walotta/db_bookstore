@@ -20,6 +20,10 @@ jobs:
           architecture: x64
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Launch MongoDB
+        run: |
+          sudo docker container run --name mongo -p 27017:27017 -d mongo
+          sleep 4s       
       - name: Run test
         run: pytest .
-        timeout-minutes: 3
+        timeout-minutes: 5
