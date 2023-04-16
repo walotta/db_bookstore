@@ -35,7 +35,7 @@ def jwt_decode(encoded_token, user_id: str) -> Dict[str, Any]:
     return decoded
 
 
-class User():
+class User:
     token_lifetime: int = 3600  # 3600 second
 
     def __init__(self):
@@ -73,7 +73,7 @@ class User():
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> Tuple[int, str]:
-        db_token=self.db.user.get_token(user_id)
+        db_token = self.db.user.get_token(user_id)
         if token is None:
             return error.error_authorization_fail()
         if not self.__check_token(user_id, db_token, token):
@@ -81,7 +81,7 @@ class User():
         return 200, "ok"
 
     def check_password(self, user_id: str, password: str) -> Tuple[int, str]:
-        db_password=self.db.user.get_password(user_id)
+        db_password = self.db.user.get_password(user_id)
         if db_password is None:
             return error.error_authorization_fail()
 
@@ -98,7 +98,9 @@ class User():
                 return code, message, ""
 
             token = jwt_encode(user_id, terminal)
-            modified_count=self.db.user.update_token_terminal(user_id, token, terminal)
+            modified_count = self.db.user.update_token_terminal(
+                user_id, token, terminal
+            )
             if modified_count == 0:
                 return error.error_authorization_fail() + ("",)
         except PyMongoError as e:
@@ -116,7 +118,9 @@ class User():
             terminal = "terminal_{}".format(str(time.time()))
             dummy_token = jwt_encode(user_id, terminal)
 
-            modified_count=self.db.user.update_token_terminal(user_id, dummy_token, terminal)
+            modified_count = self.db.user.update_token_terminal(
+                user_id, dummy_token, terminal
+            )
             if modified_count == 0:
                 return error.error_authorization_fail()
 
@@ -132,7 +136,7 @@ class User():
             if code != 200:
                 return code, message
 
-            deleted_count=self.db.user.delete_user(user_id)
+            deleted_count = self.db.user.delete_user(user_id)
             if deleted_count != 1:
                 return error.error_authorization_fail()
         except PyMongoError as e:
@@ -151,7 +155,7 @@ class User():
 
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
-            modified_count=self.db.user.update_password(
+            modified_count = self.db.user.update_password(
                 user_id=user_id,
                 password=new_password,
                 token=token,

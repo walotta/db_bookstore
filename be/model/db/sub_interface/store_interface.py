@@ -4,22 +4,23 @@ from ...template.store_template import StoreBookTmp, StoreTemp
 from ... import error
 from typing import List, Dict, Any, Optional
 
+
 class StoreInterface:
-    def __init__(self, conn:DBClient):
-        self.storeCol:Collection = conn.storeCol
-        self.bookInfoCol:Collection = conn.bookInfoCol
+    def __init__(self, conn: DBClient):
+        self.storeCol: Collection = conn.storeCol
+        self.bookInfoCol: Collection = conn.bookInfoCol
 
     def book_id_exist(self, store_id, book_id) -> bool:
         cursor = self.storeCol.find_one(
             {"store_id": store_id, "book_list.book_id": book_id}
         )
         return cursor is not None
-    
+
     def store_id_exist(self, store_id) -> bool:
         cursor = self.storeCol.find_one({"store_id": store_id})
         return cursor is not None
-    
-    def find_book(self, store_id:str, book_id:str) -> Optional[StoreBookTmp]:
+
+    def find_book(self, store_id: str, book_id: str) -> Optional[StoreBookTmp]:
         pipeline: List[Dict[str, Any]] = [
             {"$match": {"store_id": store_id}},
             {"$unwind": "$book_list"},
@@ -32,15 +33,15 @@ class StoreInterface:
             return None
         else:
             return StoreBookTmp.from_dict(doc)
-        
-    def get_book_info(self, book_info_id:str) -> Dict[str, Any]:
+
+    def get_book_info(self, book_info_id: str) -> Optional[Dict[str, Any]]:
         doc = self.bookInfoCol.find_one({"_id": book_info_id})
         if doc is None:
             return None
         else:
             return doc["book_info"]
-        
-    def add_book_stock_level(self,store_id:str,book_id:str,count:int) -> int:
+
+    def add_book_stock_level(self, store_id: str, book_id: str, count: int) -> int:
         result = self.storeCol.update_one(
             {
                 "store_id": store_id,
@@ -50,8 +51,8 @@ class StoreInterface:
             {"$inc": {"book_list.$.stock_level": count}},
         )
         return result.modified_count
-    
-    def get_store_seller_id(self,store_id:str) -> Optional[str]:
+
+    def get_store_seller_id(self, store_id: str) -> Optional[str]:
         result = self.storeCol.find_one(
             {"store_id": store_id}, {"_id": 0, "user_id": 1}
         )
@@ -59,8 +60,10 @@ class StoreInterface:
             return None
         else:
             return result["user_id"]
-        
-    def insert_one_book(self,store_id:str, book_id:str,stock_level:int,book_info:str)->None:
+
+    def insert_one_book(
+        self, store_id: str, book_id: str, stock_level: int, book_info: str
+    ) -> None:
         result = self.bookInfoCol.insert_one({"book_info": book_info})
         info_id = result.inserted_id
         new_book = StoreBookTmp(
@@ -70,12 +73,12 @@ class StoreInterface:
             {"store_id": store_id}, {"$push": {"book_list": new_book.to_dict()}}
         )
 
-    def add_stock_level(self,store_id:str,book_id:str,add_stock_level:int)->int:
-        result=self.storeCol.update_one(
-                {"store_id": store_id, "book_list.book_id": book_id},
-                {"$inc": {"book_list.$.stock_level": add_stock_level}},
-            )
+    def add_stock_level(self, store_id: str, book_id: str, add_stock_level: int) -> int:
+        result = self.storeCol.update_one(
+            {"store_id": store_id, "book_list.book_id": book_id},
+            {"$inc": {"book_list.$.stock_level": add_stock_level}},
+        )
         return result.modified_count
-    
-    def insert_one_store(self, new_store:StoreTemp) -> None:
+
+    def insert_one_store(self, new_store: StoreTemp) -> None:
         self.storeCol.insert_one(new_store.to_dict())

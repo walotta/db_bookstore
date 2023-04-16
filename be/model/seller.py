@@ -5,9 +5,9 @@ from .template.store_template import StoreBookTmp, StoreTemp
 from typing import List, Tuple
 
 
-class Seller():
+class Seller:
     def __init__(self):
-        self.db:DBInterface = DBInterface()
+        self.db: DBInterface = DBInterface()
 
     def add_book(
         self,

@@ -12,7 +12,7 @@ from .template.user_template import UserTemp
 
 class Buyer:
     def __init__(self):
-        self.db:DBInterface = DBInterface()
+        self.db: DBInterface = DBInterface()
 
     def new_order(
         self, user_id: str, store_id: str, id_and_count: List[Tuple[str, int]]
@@ -26,7 +26,7 @@ class Buyer:
             uid = "{}_{}_{}".format(user_id, store_id, str(uuid.uuid1()))
             order_id = uid
 
-            book_list=[]
+            book_list = []
             for book_id, count in id_and_count:
                 match_book = self.db.store.find_book(store_id, book_id)
                 if match_book is None:
@@ -41,10 +41,14 @@ class Buyer:
                 if stock_level < count:
                     return error.error_stock_level_low(book_id) + (order_id,)
 
-                modified_count=self.db.store.add_book_stock_level(store_id, book_id, -count)
+                modified_count = self.db.store.add_book_stock_level(
+                    store_id, book_id, -count
+                )
                 if modified_count == 0:
                     return error.error_stock_level_low(book_id) + (order_id,)
-                book_list.append(NewOrderBookItemTemp(book_id=book_id, count=count, price=price))
+                book_list.append(
+                    NewOrderBookItemTemp(book_id=book_id, count=count, price=price)
+                )
 
             new_order = NewOrderTemp(
                 order_id=uid,
@@ -84,7 +88,7 @@ class Buyer:
             if password != match_password:
                 return error.error_authorization_fail()
 
-            seller_id=self.db.store.get_store_seller_id(store_id)
+            seller_id = self.db.store.get_store_seller_id(store_id)
             if seller_id is None:
                 return error.error_non_exist_store_id(store_id)
 
@@ -100,16 +104,16 @@ class Buyer:
             if balance < total_price:
                 return error.error_not_sufficient_funds(order_id)
 
-            modified_count=self.db.user.add_balance(buyer_id, -total_price)
+            modified_count = self.db.user.add_balance(buyer_id, -total_price)
             if modified_count == 0:
                 return error.error_not_sufficient_funds(order_id)
 
-            modified_count=self.db.user.add_balance(seller_id, total_price)
+            modified_count = self.db.user.add_balance(seller_id, total_price)
 
             if modified_count == 0:
                 return error.error_non_exist_user_id(seller_id)
 
-            deleted_count=self.db.new_order.delete_order(order_id)
+            deleted_count = self.db.new_order.delete_order(order_id)
             if deleted_count == 0:
                 return error.error_invalid_order_id(order_id)
 
@@ -130,7 +134,7 @@ class Buyer:
             if result != password:
                 return error.error_authorization_fail()
 
-            modified_count=self.db.user.add_balance(user_id, add_value)
+            modified_count = self.db.user.add_balance(user_id, add_value)
             if modified_count == 0:
                 return error.error_non_exist_user_id(user_id)
 
