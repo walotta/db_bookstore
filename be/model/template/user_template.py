@@ -9,14 +9,12 @@ class UserTemp:
         balance: int,
         token: str,
         terminal: str,
-        store_id_list: List[str] = [],
     ):
         self.user_id: str = user_id
         self.password: str = password
         self.balance: int = balance
         self.token: str = token
         self.terminal: str = terminal
-        self.store_id_list: List[str] = store_id_list
 
     def to_dict(self) -> Dict[str, Union[str, int, List[str], Optional[str]]]:
         return {
@@ -25,7 +23,6 @@ class UserTemp:
             "balance": self.balance,
             "token": self.token,
             "terminal": self.terminal,
-            "store_id_list": self.store_id_list,
         }
 
     @staticmethod
@@ -36,5 +33,4 @@ class UserTemp:
             data["balance"],
             data["token"],
             data["terminal"],
-            data["store_id_list"],
         )

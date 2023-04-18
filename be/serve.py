@@ -6,7 +6,7 @@ from flask import request
 from be.view import auth
 from be.view import seller
 from be.view import buyer
-from be.model.db_client import db_init
+from be.model.db.db_client import db_init
 
 bp_shutdown = Blueprint("shutdown", __name__)
 
