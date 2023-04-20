@@ -28,11 +28,15 @@ class NewOrderInterface:
         return cursor is not None
 
     def update_new_order_status(self, order_id: str, status: STATUS) -> int:
-        result = self.newOrderCol.update_one({"order_id":order_id},{"$set":{"status":status.value}})
+        result = self.newOrderCol.update_one(
+            {"order_id": order_id}, {"$set": {"status": status.value}}
+        )
         return result.modified_count
 
     def find_order_status(self, order_id: str) -> Optional[STATUS]:
-        result = self.newOrderCol.find_one({"order_id":order_id},{"_id":0,"status":1})
+        result = self.newOrderCol.find_one(
+            {"order_id": order_id}, {"_id": 0, "status": 1}
+        )
         if result is None:
             return None
         else:
