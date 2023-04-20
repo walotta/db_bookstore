@@ -67,7 +67,6 @@ class Buyer:
             logging.info("528, {}".format(str(e)))
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
-            print(traceback.format_exc())
             logging.info("530, {}".format(str(e)))
             print("530, {}".format(str(e)))
             return 530, "{}".format(str(e)), ""
