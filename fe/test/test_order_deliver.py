@@ -32,14 +32,34 @@ class TestOrderDeliver:
                 continue
             else:
                 self.total_price = self.total_price + book.price * num
+        yield
+
+    def test_deliver_order(self):
         code = self.buyer.add_funds(self.total_price)
         assert code == 200
         code = self.buyer.payment(self.order_id)
         assert code == 200
-        yield
-
-    def test_deliver_order(self):
         code = self.gen_book.seller.ship_order(self.order_id)
         assert code == 200
         code = self.buyer.receive_order(self.order_id)
         assert code == 200
+
+    def test_deliver_error_status(self):
+        code = self.buyer.add_funds(self.total_price)
+        assert code == 200
+        code = self.gen_book.seller.ship_order(self.order_id)
+        assert code == 520
+        code = self.buyer.receive_order(self.order_id)
+        assert code == 520
+        code = self.buyer.payment(self.order_id)
+        assert code == 200
+        code = self.buyer.receive_order(self.order_id)
+        assert code == 520
+        code = self.gen_book.seller.ship_order(self.order_id)
+        assert code == 200
+        code = self.gen_book.seller.ship_order(self.order_id)
+        assert code == 520
+        code = self.buyer.receive_order(self.order_id)
+        assert code == 200
+        code = self.buyer.receive_order(self.order_id)
+        assert code == 520
