@@ -1,10 +1,13 @@
+import json
+
+
 class BookInfoTemp:
     # todo: Maybe walotta need to update this class
     def __init__(self, book_info: str):
-        temp_dict = eval(book_info)
+        temp_dict = json.loads(book_info)
+        temp_dict["book_id"] = temp_dict.pop("id")
         for key in temp_dict:
             setattr(self, key, temp_dict[key])
-        self.book_id = temp_dict["id"]
 
     def to_dict(self) -> dict:
         return self.__dict__
