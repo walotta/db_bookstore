@@ -2,7 +2,8 @@ from pymongo.errors import PyMongoError
 from . import error
 from .db.interface import DBInterface
 from .template.store_template import StoreBookTmp, StoreTemp
-from typing import List, Tuple
+from typing import List, Tuple, Optional
+from .template.new_order_template import STATUS
 
 
 class Seller:
@@ -66,6 +67,26 @@ class Seller:
 
             new_store = StoreTemp(store_id=store_id, user_id=user_id)
             self.db.store.insert_one_store(new_store)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        return 200, "ok"
+
+    def ship_order(self, user_id: str, order_id: str) -> Tuple[int, str]:
+        try:
+            if not self.db.user.user_id_exist(user_id):
+                return error.error_non_exist_user_id(user_id)
+            if not self.db.new_order.order_id_exist(order_id):
+                return error.error_invalid_order_id(order_id)
+
+            status: Optional[STATUS] = self.db.new_order.find_order_status(order_id)
+            if status is None:
+                return error.error_invalid_order_id(order_id)
+            if status != STATUS.PAID:
+                return error.error_order_status(order_id, status, STATUS.PAID)
+
+            self.db.new_order.update_new_order_status(order_id, STATUS.SHIPPED)
         except PyMongoError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:

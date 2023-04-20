@@ -4,10 +4,11 @@ import logging
 from pymongo.errors import PyMongoError
 from .db.interface import DBInterface
 from . import error
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Optional
 from .template.new_order_template import NewOrderTemp, NewOrderBookItemTemp
 from .template.store_template import StoreBookTmp
 from .template.user_template import UserTemp
+from .template.new_order_template import STATUS
 
 
 class Buyer:
@@ -63,6 +64,7 @@ class Buyer:
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
+            print("530, {}".format(str(e)))
             return 530, "{}".format(str(e)), ""
 
         return 200, "ok", order_id
@@ -113,8 +115,16 @@ class Buyer:
             if modified_count == 0:
                 return error.error_non_exist_user_id(seller_id)
 
-            deleted_count = self.db.new_order.delete_order(order_id)
-            if deleted_count == 0:
+            status: Optional[STATUS] = self.db.new_order.find_order_status(order_id)
+            if status is None:
+                return error.error_invalid_order_id(order_id)
+            if status != STATUS.INIT:
+                return error.error_order_status(order_id, status, STATUS.INIT)
+
+            modified_count = self.db.new_order.update_new_order_status(
+                order_id, STATUS.PAID
+            )
+            if modified_count == 0:
                 return error.error_invalid_order_id(order_id)
 
         except PyMongoError as e:
@@ -140,6 +150,38 @@ class Buyer:
 
         except PyMongoError as e:
             return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+
+        return 200, "ok"
+
+    def receive_order(self, user_id: str, order_id: str) -> Tuple[int, str]:
+        try:
+            match_order = self.db.new_order.find_new_order(order_id)
+            if match_order is None:
+                return error.error_invalid_order_id(order_id)
+
+            order_id = match_order.order_id
+            buyer_id = match_order.user_id
+
+            if buyer_id != user_id:
+                return error.error_authorization_fail()
+
+            status: Optional[STATUS] = self.db.new_order.find_order_status(order_id)
+            if status is None:
+                return error.error_invalid_order_id(order_id)
+            if status != STATUS.SHIPPED:
+                return error.error_order_status(order_id, status, STATUS.SHIPPED)
+
+            modified_count = self.db.new_order.update_new_order_status(
+                order_id, STATUS.RECEIVED
+            )
+            if modified_count == 0:
+                return error.error_invalid_order_id(order_id)
+
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+
         except BaseException as e:
             return 530, "{}".format(str(e))
 
