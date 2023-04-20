@@ -9,6 +9,15 @@ bp_searcher = Blueprint("auth", __name__, url_prefix="/auth")
 
 @bp_searcher.route("/find_book", methods=["POST"])
 def find_book():
+    dict_name: str = request.json.get("dict_name")
+    value: List[Any] = request.json.get("value")
+    # todo
+
+    s = searcher.Searcher()
+
+    code, book=s.find_book_with_one_dict(dict_name, value)
+    return jsonify({"book":book}), code
+
     # user_id: str = request.json.get("user_id")
     # store_id: str = request.json.get("store_id")
     # books: List[Any] = request.json.get("books")
