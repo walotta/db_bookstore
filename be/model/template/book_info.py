@@ -1,4 +1,5 @@
 class BookInfoTemp:
+    # todo: Maybe walotta need to update this class
     def __init__(self, book_info: str):
         temp_dict = eval(book_info)
         for key in temp_dict:

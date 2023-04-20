@@ -2,6 +2,8 @@ from typing import List, Dict, Any, Optional
 from ...template.book_info import BookInfoTemp
 
 
+# todo: These functions
+
 class SearcherInterface:
     def __init__(self) -> None:
         pass
