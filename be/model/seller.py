@@ -86,7 +86,7 @@ class Seller:
             if status != STATUS.PAID:
                 return error.error_order_status(order_id, status, STATUS.PAID)
 
-            self.db.new_order.update_order_status(order_id, STATUS.SHIPPED)
+            self.db.new_order.update_new_order_status(order_id, STATUS.SHIPPED)
         except PyMongoError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
