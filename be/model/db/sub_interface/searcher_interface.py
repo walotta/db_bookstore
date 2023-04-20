@@ -12,7 +12,7 @@ class SearcherInterface:
         self.storeCol: Collection = conn.storeCol
         self.bookInfoCol: Collection = conn.bookInfoCol
 
-    def get_one_info_by_infoId(
+    def get_one_info_by_info_id(
         self, info_id: str, dictName: str
     ) -> Optional[Union[str, int, List[str]]]:
         """
