@@ -1,4 +1,12 @@
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Any
+from enum import Enum
+
+
+class STATUS(Enum):
+    INIT = 0
+    PAID = 1
+    SHIPPED = 2
+    RECEIVED = 3
 
 
 class NewOrderBookItemTemp:
@@ -22,18 +30,21 @@ class NewOrderTemp:
         user_id: str,
         store_id: str,
         book_list: List[NewOrderBookItemTemp],
+        status: STATUS = STATUS.INIT,
     ):
         self.order_id: str = order_id
         self.user_id: str = user_id
         self.store_id: str = store_id
         self.book_list: List[NewOrderBookItemTemp] = book_list
+        self.status: STATUS = status
 
-    def to_dict(self) -> Dict[str, Union[str, int, List[Dict[str, Union[str, int]]]]]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "order_id": self.order_id,
             "user_id": self.user_id,
             "store_id": self.store_id,
             "book_list": [book_item.to_dict() for book_item in self.book_list],
+            "status": self.status.value,
         }
 
     @staticmethod
@@ -46,4 +57,5 @@ class NewOrderTemp:
                 NewOrderBookItemTemp.from_dict(book_item)
                 for book_item in data["book_list"]
             ],
+            STATUS(data["status"]),
         )

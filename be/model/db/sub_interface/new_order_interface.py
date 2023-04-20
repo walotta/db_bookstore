@@ -2,6 +2,7 @@ from ..db_client import DBClient
 from pymongo.collection import Collection
 from ...template.new_order_template import NewOrderTemp, NewOrderBookItemTemp
 from typing import Optional
+from ...template.new_order_template import STATUS
 
 
 class NewOrderInterface:
@@ -21,3 +22,13 @@ class NewOrderInterface:
     def delete_order(self, order_id: str) -> int:
         result = self.newOrderCol.delete_one({"order_id": order_id})
         return result.deleted_count
+
+    def update_new_order_status(self, order_id: str, status: int) -> int:
+        # TODO
+        # order.status = status
+        pass
+
+    def find_order_status(self, order_id: str) -> Optional[STATUS]:
+        # TODO
+        # return order.status if order exist else None
+        pass
