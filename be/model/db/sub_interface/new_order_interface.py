@@ -1,7 +1,7 @@
 from ..db_client import DBClient
 from pymongo.collection import Collection
 from ...template.new_order_template import NewOrderTemp, NewOrderBookItemTemp
-from typing import Optional
+from typing import Optional, List
 from ...template.new_order_template import STATUS
 
 

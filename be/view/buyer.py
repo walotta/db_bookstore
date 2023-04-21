@@ -50,3 +50,31 @@ def receive_order():
     b = Buyer()
     code, message = b.receive_order(user_id, order_id)
     return jsonify({"message": message}), code
+
+
+@bp_buyer.route("/query_order", methods=["POST"])
+def query_order():
+    user_id = request.json.get("user_id")
+    order_id = request.json.get("order_id")
+    b = Buyer()
+    code, message, order = b.query_order(user_id, order_id)
+    return jsonify({"message": message, "order": order}), code
+
+
+@bp_buyer.route("/query_order_id_list", methods=["POST"])
+def query_order_id_list():
+    user_id = request.json.get("user_id")
+    password = request.json.get("password")
+    b = Buyer()
+    code, message, order_id_list = b.query_order_id_list(user_id, password)
+    return jsonify({"message": message, "order_id_list": order_id_list}), code
+
+
+@bp_buyer.route("/cancel_order", methods=["POST"])
+def cancel_order():
+    user_id = request.json.get("user_id")
+    password = request.json.get("password")
+    order_id = request.json.get("order_id")
+    b = Buyer()
+    code, message = b.cancel_order(user_id, password, order_id)
+    return jsonify({"message": message}), code

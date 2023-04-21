@@ -2,7 +2,7 @@ import requests
 import simplejson
 from urllib.parse import urljoin
 from fe.access.auth import Auth
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 
 
 class Buyer:
@@ -58,6 +58,39 @@ class Buyer:
             "order_id": order_id,
         }
         url = urljoin(self.url_prefix, "receive_order")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        return r.status_code
+
+    def query_order(self, order_id: str) -> Tuple[int, Dict[str, Any]]:
+        json = {
+            "user_id": self.user_id,
+            "order_id": order_id,
+        }
+        url = urljoin(self.url_prefix, "query_order")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("order")
+
+    def query_order_id_list(self) -> Tuple[int, List[str]]:
+        json = {
+            "user_id": self.user_id,
+            "password": self.password,
+        }
+        url = urljoin(self.url_prefix, "query_order_id_list")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("order_id_list")
+
+    def cancel_order(self, order_id: str) -> int:
+        json = {
+            "user_id": self.user_id,
+            "password": self.password,
+            "order_id": order_id,
+        }
+        url = urljoin(self.url_prefix, "cancel_order")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
         return r.status_code

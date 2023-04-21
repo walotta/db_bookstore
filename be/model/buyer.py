@@ -58,6 +58,7 @@ class Buyer:
                 book_list=book_list,
             )
             self.db.new_order.insert_new_order(new_order)
+            self.db.user.add_order(user_id, order_id)
 
         except PyMongoError as e:
             logging.info("528, {}".format(str(e)))
@@ -182,6 +183,75 @@ class Buyer:
         except PyMongoError as e:
             return 528, "{}".format(str(e))
 
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+
+        return 200, "ok"
+
+    def query_order(
+        self, user_id: str, order_id: str
+    ) -> Tuple[int, str, Dict[str, Any]]:
+        try:
+            match_order = self.db.new_order.find_new_order(order_id)
+            if match_order is None:
+                return error.error_invalid_order_id(order_id)
+            if match_order.user_id != user_id:
+                return error.error_authorization_fail()
+        except PyMongoError as e:
+            return 528, "{}".format(str(e)), {}
+        except BaseException as e:
+            return 530, "{}".format(str(e)), {}
+        return 200, "ok", match_order.to_dict()
+
+    def query_order_id_list(
+        self, user_id: str, password: str
+    ) -> Tuple[int, str, List[str]]:
+        try:
+            result = self.db.user.get_password(user_id)
+            if result is None:
+                return error.error_non_exist_user_id(user_id) + ([],)
+            if result != password:
+                return error.error_authorization_fail() + ([],)
+
+            order_list = self.db.user.get_order_list(user_id)
+            if order_list is None:
+                return error.error_non_exist_user_id(user_id) + ([],)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e)), []
+        except BaseException as e:
+            return 530, "{}".format(str(e)), []
+        return 200, "ok", order_list
+
+    def cancel_order(
+        self, user_id: str, password: str, order_id: str
+    ) -> Tuple[int, str]:
+        try:
+            result = self.db.user.get_password(user_id)
+            if result is None:
+                return error.error_non_exist_user_id(user_id)
+            if result != password:
+                return error.error_authorization_fail()
+
+            match_order = self.db.new_order.find_new_order(order_id)
+            if match_order is None:
+                return error.error_invalid_order_id(order_id)
+            if match_order.user_id != user_id:
+                return error.error_authorization_fail()
+
+            status: Optional[STATUS] = self.db.new_order.find_order_status(order_id)
+            if status is None:
+                return error.error_invalid_order_id(order_id)
+            if status != STATUS.INIT:
+                return error.error_order_status(order_id, status, STATUS.INIT)
+
+            modified_count = self.db.new_order.update_new_order_status(
+                order_id, STATUS.CANCELED
+            )
+            if modified_count == 0:
+                return error.error_invalid_order_id(order_id)
+
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
 

@@ -1,7 +1,7 @@
 from ..db_client import DBClient
 from pymongo.collection import Collection
 from ...template.user_template import UserTemp
-from typing import Optional
+from typing import Optional, List
 
 
 class UserInterface:
@@ -74,3 +74,19 @@ class UserInterface:
             },
         )
         return result.modified_count
+
+    def add_order(self, user_id: str, order_id: str) -> int:
+        result = self.userCol.update_one(
+            {"user_id": user_id},
+            {"$push": {"order_id_list": order_id}},
+        )
+        return result.modified_count
+
+    def get_order_list(self, user_id: str) -> Optional[List[str]]:
+        result = self.userCol.find_one(
+            {"user_id": user_id}, {"_id": 0, "order_id_list": 1}
+        )
+        if result is None:
+            return None
+        else:
+            return result["order_id_list"]
