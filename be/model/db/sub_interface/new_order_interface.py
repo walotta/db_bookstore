@@ -42,14 +42,33 @@ class NewOrderInterface:
         else:
             return STATUS(result["status"])
 
-    def auto_cancel_expired_order(self, current_time: int, expire_time: int) -> int:
+    def auto_cancel_expired_order(
+        self, current_time: int, expire_time: int
+    ) -> List[str]:
         # for all order that satisfy order.create_time + expire_time >= current_time
         # and status == INIT(0), change its status to CANCELLED(4)
-        result = self.newOrderCol.update_many(
+        # returns: a list of order_id, represent all cancelled order
+
+        pipeline = [
+            {"$match": {"status": 0}},
             {
-                "create_time": {"$gte": current_time - expire_time},
-                "status": STATUS.INIT.value,
+                "$project": {
+                    "order_id": 1,
+                    "create_time": 1,
+                    "status": 1,
+                    "expired": {
+                        "$gte": [
+                            {"$add": ["$create_time", expire_time]},
+                            current_time,
+                        ]
+                    },
+                }
             },
-            {"$set": {"status": STATUS.CANCELED.value}},
-        )
-        return result.modified_count
+            {"$match": {"expired": True}},
+        ]
+        results = self.newOrderCol.aggregate(pipeline=pipeline)
+        order_id_list = []
+        for doc in results:
+            order_id_list.append(doc["order_id"])
+            self.update_new_order_status(doc["order_id"], STATUS.CANCELED)
+        return order_id_list

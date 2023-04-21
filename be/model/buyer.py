@@ -253,6 +253,11 @@ class Buyer:
             if modified_count == 0:
                 return error.error_invalid_order_id(order_id)
 
+            for book_item in match_order.book_list:
+                self.db.store.add_book_stock_level(
+                    match_order.store_id, book_item.book_id, book_item.count
+                )
+
         except PyMongoError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:

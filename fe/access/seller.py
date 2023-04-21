@@ -2,6 +2,7 @@ import requests
 from urllib.parse import urljoin
 from fe.access import book
 from fe.access.auth import Auth
+from typing import List, Tuple
 
 
 class Seller:
@@ -64,7 +65,9 @@ class Seller:
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
 
-    def auto_cancel_expired_order(self, current_time: int, expire_time: int) -> int:
+    def auto_cancel_expired_order(
+        self, current_time: int, expire_time: int
+    ) -> Tuple[int, List[str]]:
         json = {
             "current_time": current_time,
             "expire_time": expire_time,
@@ -73,4 +76,4 @@ class Seller:
         url = urljoin(self.url_prefix, "auto_cancel_expired_order")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
-        return r.status_code
+        return r.status_code, r.json()["canceled_order_id_list"]

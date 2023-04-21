@@ -115,11 +115,27 @@ class TestOrderFunctions:
 
     def test_auto_cancel_expired_order_ok(self):
         current_time = 9
-        self.gen_book_list[0].seller.auto_cancel_expired_order(
-            current_time, self.expire_time
-        )
+        code, canceled_order_id_list = self.gen_book_list[
+            0
+        ].seller.auto_cancel_expired_order(current_time, self.expire_time)
+        assert code == 200
         for i in range(self.order_num):
             if i + self.expire_time >= current_time and self.status_list[i] == 0:
                 order_id = self.order_id_list[i]
                 order = self.buyer.query_order(order_id)[1]
                 assert order["status"] == 4
+                assert order_id in canceled_order_id_list
+
+    def test_cancel_order_recoup_stock_level(self):
+        for i in range(self.order_num):
+            order_id = self.order_id_list[i]
+            status = self.status_list[i]
+            if status == 0:
+                code = self.buyer.cancel_order(order_id)
+                assert code == 200
+                for book in self.buy_book_id_list_list[i]:
+                    book_id = book[0]
+                    count = book[1]
+                    code, book = self.buyer.get_book(book_id)
+                    assert code == 200
+                    assert book.stock_level == count

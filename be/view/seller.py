@@ -60,5 +60,10 @@ def auto_cancel_expired_order():
     current_time = request.json.get("current_time")
     expire_time = request.json.get("expire_time")
     s = seller.Seller()
-    code, message = s.auto_cancel_expired_order(current_time, expire_time)
-    return jsonify({"message": message}), code
+    code, message, canceled_order_id_list = s.auto_cancel_expired_order(
+        current_time, expire_time
+    )
+    return (
+        jsonify({"message": message, "canceled_order_id_list": canceled_order_id_list}),
+        code,
+    )

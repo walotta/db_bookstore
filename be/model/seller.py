@@ -95,12 +95,22 @@ class Seller:
 
     def auto_cancel_expired_order(
         self, current_time: int, expire_time: int
-    ) -> Tuple[int, str]:
+    ) -> Tuple[int, str, List[str]]:
         try:
-            self.db.new_order.auto_cancel_expired_order(current_time, expire_time)
+            canceled_order_id_list = self.db.new_order.auto_cancel_expired_order(
+                current_time, expire_time
+            )
+            for order_id in canceled_order_id_list:
+                order = self.db.new_order.find_new_order(order_id)
+                if order is None:
+                    continue
+                for book_item in order.book_list:
+                    self.db.store.add_book_stock_level(
+                        order.store_id, book_item.book_id, book_item.count
+                    )
         except PyMongoError as e:
-            return 528, "{}".format(str(e))
+            return 528, "{}".format(str(e)), []
         except BaseException as e:
-            return 530, "{}".format(str(e))
+            return 530, "{}".format(str(e)), []
 
-        return 200, "ok"
+        return 200, "ok", canceled_order_id_list
