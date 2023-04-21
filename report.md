@@ -1,42 +1,3 @@
-> ## 要求
->
-> 2～3人一组，做好分工，完成下述内容：
->
-> 2.在完成前60%功能的基础上，继续实现后40%功能，要有接口、后端逻辑实现、数据库操作、代码测试。对所有接口都要写test case，通过测试并计算测试覆盖率（尽量提高测试覆盖率）。
->
-> 3.尽量使用索引，对程序与数据库执行的性能有考量
->
-> 4.尽量使用git等版本管理工具
->
-> 5.不需要实现界面，只需通过代码测试体现功能与正确性
->
->## 报告内容
-> 
->1.每位组员的学号、姓名，以及分工
-> 
->3.对60%基础功能和40%附加功能的接口、后端逻辑、数据库操作、测试用例进行介绍，展示测试结果与测试覆盖率。
-> 
->4.如果完成，可以展示本次大作业的亮点，比如要求中的“3 4”两点。
-> 
->注：验收依据为报告，本次大作业所作的工作要完整展示在报告中。
-> 
->
-> ## 验收与考核准测
->
->- 提交 **代码+报告** 压缩包到 **作业提交入口**
-> - 命名规则：2023_SJTU_PJ1_第几组(.zip)
->- 提交截止日期：**2023.4.22 23:59**
-> 
-> 考核标准：
-> 
->1. 没有提交或没有实质的工作，得D
-> 2. 完成"要求"中的第点，可得C
->3. 完成前3点，通过全部测试用例且有较高的测试覆盖率，可得B
-> 4. 完成前2点的基础上，体现出第3 4点，可得A
-> 5. 以上均为参考，最后等级会根据最终的工作质量有所调整
-
-// TODO: remove above
-
 # Bookstore Homework Report
 
 > Group number: **2**
@@ -128,7 +89,7 @@ count = int
 price = int
 ```
 
-## Added API
+## Added API (40% function API)
 
 ### API description
 
@@ -144,43 +105,47 @@ price = int
 
 [jump to auto cancel expired order detail](doc/seller.md#自动取消所有超时订单)
 
-[jump to find books with specific requirment](doc/searcher.md#搜索书籍)
+[jump to find books with specific requirements](doc/searcher.md#搜索书籍)
 
 ### Backend logic implementation
 
 #### ship / receive order
 
-Add a `STATUS` for each order, and update the `STATUS` when the order is shipped or received. We still subtract stock level when the order is created, since the stock level represent all current availabe books. When an order is cancelled, its stock level are added back.
+Add a `STATUS` for each order, and update the `STATUS` when the order is shipped or received. We still subtract the stock level when the order is created since the stock level represents all currently available books. When an order is canceled, its stock level is added back.
 
 #### query order (id list)
 
-Directly query through database.
+Directly query through the database.
 
 #### cancel order
 
-For manually cancel, just update the `STATUS` of the order to `CANCELED`. Notice only unpaid order (thus unshipped, unreceived and uncanceled) can be canceled.
+To manually cancel, just update the `STATUS` of the order to `CANCELED`. Notice only unpaid orders (thus unshipped, unreceived, and uncanceled) can be canceled.
 
-For auto cancel, we provide an API to auto remove all expired order. Expiration time and current time are required by this API. Users are expected to launch a daemon to call this API each `expiration_time`. For example, if `expiration_time` is 1 hour, then the daemon should be launched every 1 hour.
+For auto cancel, we provide an API to auto-remove all expired orders. Expiration time and current time are required by this API. Users are expected to launch a daemon to call this API each `expiration_time`. For example, if `expiration_time` is 1 hour, then the daemon should be launched every 1 hour.
 
 #### search books
 
-Add a searcher for all requirments of searching books with specific needs. This API would gives you a list of book names and the stores that sells them. Because there are big differences between find book by sigle label or find book by contents of the book or by tags, the backend recognize them as three different situations to process.
+Add a searcher for all requirements of searching books with specific needs. This API would give you a list of book names and the stores that sells them. Because there are big differences between finding a book by a single label or finding a book by the contents of the book or by tags, the backend recognizes them as three different situations to process.
 
-We provide an API for diverse searching needs. you can search by the book's title, author, content, tags and so on. Users use `dict_name` to assign the label he/she wants to search, and use `kind` to choose the specific kind of search he/she need. Also, for the situation that there are too many return values, the user can use `page_number` to choose the page of information he/she want to see.
+We provide an API for diverse search needs. you can search by the book's title, author, content, tags, etc. Users use `dict_name` to assign the label he/she wants to search and use `kind` to choose the specific kind of search he/she needs. Also, in the situation that there are too many return values, the user can use `page_number` to choose the page of information he/she wants to see.
 
 ### database operation design
 
-// TODO
+The main reason why documents are designed like this and why setting the index like this is already written in the [table](##Database design).
 
 ### Test case design
 
 #### test_order_deliver.py
 
-This test mainly tests the function of order shipping and receiving. One key concern is the status of order can only change in a specific order: INIT -> PAID -> SHIPPED -> RECEIVED (or INIT -> CANCELED when cancelling an order). So we test the status of order after each operation. We also make sure it correctly error at invalid order.
+This test mainly tests the function of order shipping and receiving. One key concern is the status of the order can only change in a specific order: INIT -> PAID -> SHIPPED -> RECEIVED (or INIT -> CANCELED when canceling an order). So we test the status of the order after each operation. We also make sure it correctly error at invalid order.
 
 #### test_order_functions.py
 
-This test mainly tests all new order functions, such as query, cancel and auto cancel. We test the correctness of the returned value and the status of order after each operation. We also test the stock level of books are correctly recouped after cancelling an order.
+This test mainly tests all new order functions, such as query, cancel, and auto cancel. We test the correctness of the returned value and the status of the order after each operation. We also test the stock level of correctly recouped books after canceling an order.
+
+#### test_search_book.py
+
+This test mainly tests the function of the find_book function. There are three main uses of the function that are tested: search with one label, search with multiple tags, and search with a part of the contents. Each test would combine with some points that are not very fit for input such as dict_name=None, and our function can avoid its harmfulness.
 
 ## Collaborate with GitHub
 
@@ -192,9 +157,166 @@ collaborate with GitHub
 * Use **GitHub Action** to auto-check the `Code Format` of the code by `black`, the `Type check` of code by `mypy`, and the `correctness` of the code by `pytest`, see the [GitHub action config](https://github.com/walotta/db_bookstore/tree/master/.github/workflows) and [action detail](https://github.com/walotta/db_bookstore/actions)
 * Use **Branch** to make it possible for each collaborator can write and contribute code independently
 
-## Test case coverage
+## Test case coverage & Test result
 
-// TODO: after lyn finishes his part, add the coverage
+### coverage
+
+| API                        | coverage ratio |
+| -------------------------- | -------------- |
+| Auth                       | 100%           |
+| Buyer                      | 100%           |
+| Searcher                   | 78%            |
+| Seller                     | 100%           |
+| Database interface average | 89%            |
+| Total                      | 76%            |
+
+### run result
+
+run with:
+
+```bash
+sh script/test.sh
+```
+
+result:
+
+```bash
+==================================================================== test session starts ====================================================================
+platform darwin -- Python 3.9.16, pytest-7.2.2, pluggy-1.0.0 -- /Users/wzj/opt/anaconda3/envs/db/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/wzj/Documents/code/SJTU_DMBS_2023_PJ1
+plugins: cov-4.0.0
+collecting ... frontend begin test
+ * Serving Flask app 'be.serve' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+2023-04-22 05:31:55,274 [Thread-1    ] [INFO ]   * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+collected 45 items                                                                                                                                          
+
+fe/test/test_add_book.py::TestAddBook::test_ok PASSED                                                                                                 [  2%]
+fe/test/test_add_book.py::TestAddBook::test_error_non_exist_store_id PASSED                                                                           [  4%]
+fe/test/test_add_book.py::TestAddBook::test_error_exist_book_id PASSED                                                                                [  6%]
+fe/test/test_add_book.py::TestAddBook::test_error_non_exist_user_id PASSED                                                                            [  8%]
+fe/test/test_add_funds.py::TestAddFunds::test_ok PASSED                                                                                               [ 11%]
+fe/test/test_add_funds.py::TestAddFunds::test_error_user_id PASSED                                                                                    [ 13%]
+fe/test/test_add_funds.py::TestAddFunds::test_error_password PASSED                                                                                   [ 15%]
+fe/test/test_add_stock_level.py::TestAddStockLevel::test_error_user_id PASSED                                                                         [ 17%]
+fe/test/test_add_stock_level.py::TestAddStockLevel::test_error_store_id PASSED                                                                        [ 20%]
+fe/test/test_add_stock_level.py::TestAddStockLevel::test_error_book_id PASSED                                                                         [ 22%]
+fe/test/test_add_stock_level.py::TestAddStockLevel::test_ok PASSED                                                                                    [ 24%]
+fe/test/test_bench.py::test_bench PASSED                                                                                                              [ 26%]
+fe/test/test_create_store.py::TestCreateStore::test_ok PASSED                                                                                         [ 28%]
+fe/test/test_create_store.py::TestCreateStore::test_error_exist_store_id PASSED                                                                       [ 31%]
+fe/test/test_login.py::TestLogin::test_ok PASSED                                                                                                      [ 33%]
+fe/test/test_login.py::TestLogin::test_error_user_id PASSED                                                                                           [ 35%]
+fe/test/test_login.py::TestLogin::test_error_password PASSED                                                                                          [ 37%]
+fe/test/test_new_order.py::TestNewOrder::test_non_exist_book_id PASSED                                                                                [ 40%]
+fe/test/test_new_order.py::TestNewOrder::test_low_stock_level PASSED                                                                                  [ 42%]
+fe/test/test_new_order.py::TestNewOrder::test_ok PASSED                                                                                               [ 44%]
+fe/test/test_new_order.py::TestNewOrder::test_non_exist_user_id PASSED                                                                                [ 46%]
+fe/test/test_new_order.py::TestNewOrder::test_non_exist_store_id PASSED                                                                               [ 48%]
+fe/test/test_order_deliver.py::TestOrderDeliver::test_deliver_order PASSED                                                                            [ 51%]
+fe/test/test_order_deliver.py::TestOrderDeliver::test_deliver_error_status PASSED                                                                     [ 53%]
+fe/test/test_order_functions.py::TestOrderFunctions::test_query_order PASSED                                                                          [ 55%]
+fe/test/test_order_functions.py::TestOrderFunctions::test_cancel_order_ok PASSED                                                                      [ 57%]
+fe/test/test_order_functions.py::TestOrderFunctions::test_cancel_order_error PASSED                                                                   [ 60%]
+fe/test/test_order_functions.py::TestOrderFunctions::test_auto_cancel_expired_order_ok PASSED                                                         [ 62%]
+fe/test/test_order_functions.py::TestOrderFunctions::test_cancel_order_recoup_stock_level PASSED                                                      [ 64%]
+fe/test/test_password.py::TestPassword::test_ok PASSED                                                                                                [ 66%]
+fe/test/test_password.py::TestPassword::test_error_password PASSED                                                                                    [ 68%]
+fe/test/test_password.py::TestPassword::test_error_user_id PASSED                                                                                     [ 71%]
+fe/test/test_payment.py::TestPayment::test_ok PASSED                                                                                                  [ 73%]
+fe/test/test_payment.py::TestPayment::test_authorization_error PASSED                                                                                 [ 75%]
+fe/test/test_payment.py::TestPayment::test_not_suff_funds PASSED                                                                                      [ 77%]
+fe/test/test_payment.py::TestPayment::test_repeat_pay PASSED                                                                                          [ 80%]
+fe/test/test_register.py::TestRegister::test_register_ok PASSED                                                                                       [ 82%]
+fe/test/test_register.py::TestRegister::test_unregister_ok PASSED                                                                                     [ 84%]
+fe/test/test_register.py::TestRegister::test_unregister_error_authorization PASSED                                                                    [ 86%]
+fe/test/test_register.py::TestRegister::test_register_error_exist_user_id PASSED                                                                      [ 88%]
+fe/test/test_search_book.py::TestSearchBook::test_search_with_title PASSED                                                                            [ 91%]
+fe/test/test_search_book.py::TestSearchBook::test_search_with_author PASSED                                                                           [ 93%]
+fe/test/test_search_book.py::TestSearchBook::test_search_with_tags PASSED                                                                             [ 95%]
+fe/test/test_search_book.py::TestSearchBook::test_search_with_contents PASSED                                                                         [ 97%]
+fe/test/test_search_book.py::TestSearchBook::test_search_with_author_with_store_id PASSED                                                             [100%]
+
+============================================================== 45 passed in 183.62s (0:03:03) ===============================================================
+/Users/wzj/Documents/code/SJTU_DMBS_2023_PJ1/be/serve.py:19: UserWarning: The 'environ['werkzeug.server.shutdown']' function is deprecated and will be removed in Werkzeug 2.1.
+  func()
+2023-04-22 05:34:57,043 [Thread-6296 ] [INFO ]  127.0.0.1 - - [22/Apr/2023 05:34:57] "GET /shutdown HTTP/1.1" 200 -
+frontend end test
+No data to combine
+Name                                               Stmts   Miss Branch BrPart  Cover
+------------------------------------------------------------------------------------
+be/__init__.py                                         0      0      0      0   100%
+be/app.py                                              3      3      2      0     0%
+be/model/__init__.py                                   0      0      0      0   100%
+be/model/buyer.py                                    188     57     94     26    66%
+be/model/db/__init__.py                                0      0      0      0   100%
+be/model/db/db_client.py                              32      3      0      0    91%
+be/model/db/interface.py                              12      0      0      0   100%
+be/model/db/sub_interface/__init__.py                  0      0      0      0   100%
+be/model/db/sub_interface/new_order_interface.py      37      3      6      1    91%
+be/model/db/sub_interface/searcher_interface.py       60      5     26      5    88%
+be/model/db/sub_interface/store_interface.py          44      5      6      1    84%
+be/model/db/sub_interface/user_interface.py           47      2      8      2    93%
+be/model/error.py                                     29      3      0      0    90%
+be/model/searcher.py                                  38      3     12      3    88%
+be/model/seller.py                                    98     33     50      9    64%
+be/model/template/__init__.py                          0      0      0      0   100%
+be/model/template/book_info.py                        16      2      4      1    85%
+be/model/template/new_order_template.py               31      0      4      0   100%
+be/model/template/store_template.py                   21      1      4      0    88%
+be/model/template/user_template.py                    14      1      0      0    93%
+be/model/user.py                                     113     25     38      7    74%
+be/serve.py                                           38      1      2      1    95%
+be/sql_model/__init__.py                               0      0      0      0   100%
+be/sql_model/buyer.py                                112    112     48      0     0%
+be/sql_model/db_conn.py                               22     22      6      0     0%
+be/sql_model/error.py                                 23     23      0      0     0%
+be/sql_model/seller.py                                50     50     22      0     0%
+be/sql_model/store.py                                 29     29      0      0     0%
+be/sql_model/user.py                                 119    119     38      0     0%
+be/view/__init__.py                                    0      0      0      0   100%
+be/view/auth.py                                       42      0      0      0   100%
+be/view/buyer.py                                      65      0      2      0   100%
+be/view/searcher.py                                   37      7      8      1    78%
+be/view/seller.py                                     53      0      0      0   100%
+fe/__init__.py                                         0      0      0      0   100%
+fe/access/__init__.py                                  0      0      0      0   100%
+fe/access/auth.py                                     32      0      0      0   100%
+fe/access/book.py                                     72      1     12      2    96%
+fe/access/buyer.py                                    63      0      2      0   100%
+fe/access/new_buyer.py                                 8      0      0      0   100%
+fe/access/new_seller.py                                8      0      0      0   100%
+fe/access/searcher.py                                 13      0      0      0   100%
+fe/access/seller.py                                   50      0      0      0   100%
+fe/bench/__init__.py                                   0      0      0      0   100%
+fe/bench/run.py                                       13      0      6      0   100%
+fe/bench/session.py                                   48      0     12      1    98%
+fe/bench/workload.py                                 126      1     22      2    98%
+fe/conf.py                                            11      0      0      0   100%
+fe/conftest.py                                        25      0      0      0   100%
+fe/test/__init__.py                                    0      0      0      0   100%
+fe/test/gen_book_data.py                              49      0     16      0   100%
+fe/test/test_add_book.py                              36      0     10      0   100%
+fe/test/test_add_funds.py                             23      0      0      0   100%
+fe/test/test_add_stock_level.py                       39      0     10      0   100%
+fe/test/test_bench.py                                  6      2      0      0    67%
+fe/test/test_create_store.py                          20      0      0      0   100%
+fe/test/test_login.py                                 28      0      0      0   100%
+fe/test/test_new_order.py                             40      0      0      0   100%
+fe/test/test_order_deliver.py                         57      1      4      1    97%
+fe/test/test_order_functions.py                      136      1     46      1    99%
+fe/test/test_password.py                              33      0      0      0   100%
+fe/test/test_payment.py                               61      1      4      1    97%
+fe/test/test_register.py                              31      0      0      0   100%
+fe/test/test_search_book.py                          167      5     84      4    96%
+------------------------------------------------------------------------------------
+TOTAL                                               2568    521    608     69    76%
+Wrote HTML report to htmlcov/index.html
+```
 
 
 
