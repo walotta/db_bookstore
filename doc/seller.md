@@ -251,3 +251,16 @@ key|类型|描述 | 是否可为空
 200 | 取消成功
 5XX | 无效参数
 520 | 订单状态不正确，只有已付款的订单支持收货 
+
+##### Body:
+```json
+{
+  "canceled_order_id_list": "canceled_order_id_list"
+}
+```
+
+##### 属性说明：
+
+变量名 | 类型 | 描述 | 是否可为空
+---|---|---|---
+canceled_order_id_list | List[string] | 所有被取消的订单号 | N
