@@ -53,8 +53,6 @@
 
 ## Database design
 
-// TODO: index
-
 | Collections | Documents                         | Document design reasons                                      | Index                        | Index design reasons                                         |
 | ----------- | --------------------------------- | ------------------------------------------------------------ | ---------------------------- | ------------------------------------------------------------ |
 | user        | [jump to detail](#document_user)  | Use to store the information of each user, store the index of order because of the need of getting the user's past order list | user_id                      | all the query is seeking the specific user_id's information  |
@@ -120,7 +118,8 @@ pictures = List[str]
 order_id = str	# is unique
 user_id = str
 store_id = str
-status = [INIT, PAID, SHIPPED, RECEIVED]	# use int as enum
+create_time = int
+status = [INIT, PAID, SHIPPED, RECEIVED, CANCELED]	# use int as enum
 
 [[new_order.book_item]]
 book_id = str
