@@ -25,14 +25,6 @@ class SearcherInterface:
         else:
             return result[dictName]
 
-    def get_one_info_of_book(
-        self, store_id: str, book_id: str, dictName: str
-    ) -> Optional[Union[str, int, List[str]]]:
-        """
-        This function will return a single information of one specific book
-        """
-        pass
-
     def find_book_with_one_dict(
         self, dictName: str, value, st: int, ed: int, return_dict: List[str]
     ) -> Tuple[List[Dict[str,str]], int]:
