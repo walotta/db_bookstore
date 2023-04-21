@@ -17,12 +17,22 @@ class Buyer:
         assert code == 200
 
     def new_order(
-        self, store_id: str, book_id_and_count: List[Tuple[str, int]]
+        self,
+        store_id: str,
+        book_id_and_count: List[Tuple[str, int]],
+        create_time: int = 0,
+        expire_time: int = 10,
     ) -> Tuple[int, str]:
         books = []
         for id_count_pair in book_id_and_count:
             books.append({"id": id_count_pair[0], "count": id_count_pair[1]})
-        json = {"user_id": self.user_id, "store_id": store_id, "books": books}
+        json = {
+            "user_id": self.user_id,
+            "store_id": store_id,
+            "books": books,
+            "create_time": create_time,
+            "expire_time": expire_time,
+        }
         # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "new_order")
         headers = {"token": self.token}

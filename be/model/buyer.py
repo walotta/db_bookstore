@@ -16,7 +16,11 @@ class Buyer:
         self.db: DBInterface = DBInterface()
 
     def new_order(
-        self, user_id: str, store_id: str, id_and_count: List[Tuple[str, int]]
+        self,
+        user_id: str,
+        store_id: str,
+        id_and_count: List[Tuple[str, int]],
+        create_time: int,
     ) -> Tuple[int, str, str]:
         order_id = ""
         try:
@@ -56,6 +60,7 @@ class Buyer:
                 user_id=user_id,
                 store_id=store_id,
                 book_list=book_list,
+                create_time=create_time,
             )
             self.db.new_order.insert_new_order(new_order)
             self.db.user.add_order(user_id, order_id)

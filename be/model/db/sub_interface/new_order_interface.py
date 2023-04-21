@@ -41,3 +41,15 @@ class NewOrderInterface:
             return None
         else:
             return STATUS(result["status"])
+
+    def auto_cancel_expired_order(self, current_time: int, expire_time: int) -> int:
+        # for all order that satisfy order.create_time + expire_time >= current_time
+        # and status == INIT(0), change its status to CANCELLED(4)
+        result = self.newOrderCol.update_many(
+            {
+                "create_time": {"$gte": current_time - expire_time},
+                "status": STATUS.INIT.value,
+            },
+            {"$set": {"status": STATUS.CANCELED.value}},
+        )
+        return result.modified_count

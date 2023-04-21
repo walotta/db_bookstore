@@ -18,6 +18,7 @@ class TestOrderFunctions:
         b = register_new_buyer(self.buyer_id, self.password)
         self.buyer = b
         self.order_num = 12
+        self.expire_time = 5
         self.order_id_list = []
         self.price_list = []
         self.buy_book_id_list_list = []
@@ -34,7 +35,9 @@ class TestOrderFunctions:
             buy_book_info_list = gen_book.buy_book_info_list
             assert ok
             self.buy_book_id_list_list.append(buy_book_id_list)
-            code, order_id = b.new_order(self.store_id + str(i), buy_book_id_list)
+            code, order_id = b.new_order(
+                self.store_id + str(i), buy_book_id_list, i, self.expire_time
+            )
             assert code == 200
             total_price = 0
             for item in buy_book_info_list:
@@ -109,3 +112,14 @@ class TestOrderFunctions:
                 assert code == 520
         code = self.buyer.cancel_order("not_exist_order_id")
         assert code == 518
+
+    def test_auto_cancel_expired_order_ok(self):
+        current_time = 9
+        self.gen_book_list[0].seller.auto_cancel_expired_order(
+            current_time, self.expire_time
+        )
+        for i in range(self.order_num):
+            if i + self.expire_time >= current_time and self.status_list[i] == 0:
+                order_id = self.order_id_list[i]
+                order = self.buyer.query_order(order_id)[1]
+                assert order["status"] == 4

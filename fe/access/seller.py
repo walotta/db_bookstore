@@ -63,3 +63,14 @@ class Seller:
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
+
+    def auto_cancel_expired_order(self, current_time: int, expire_time: int) -> int:
+        json = {
+            "current_time": current_time,
+            "expire_time": expire_time,
+        }
+        # print(simplejson.dumps(json))
+        url = urljoin(self.url_prefix, "auto_cancel_expired_order")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        return r.status_code

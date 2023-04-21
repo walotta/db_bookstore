@@ -26,6 +26,7 @@ token | string | 登录产生的会话标识 | N
       "count": 4
     }
   ]
+  "create_time": 1,
 }
 ```
 
@@ -36,6 +37,7 @@ token | string | 登录产生的会话标识 | N
 user_id | string | 买家用户ID | N
 store_id | string | 商铺ID | N
 books | class | 书籍购买列表 | N
+create_time | int | 下单时间 | N
 
 books数组：
 
