@@ -93,6 +93,7 @@ book_info_id = str
 [book_info]
 _id = mongo_id	# is unique
 book_id = str
+store_id = str
 title = str
 author = str
 publisher = str
@@ -131,11 +132,33 @@ price = int
 
 ### API description
 
-// TODO: added API description or give link if already described in doc/*
+[jump to ship order detail](doc/seller.md#商家发货)
+
+[jump to receive order detail](doc/buyer.md#买家收货)
+
+[jump to query order detail](doc/buyer.md#买家查询订单)
+
+[jump to query order id list detail](doc/buyer.md#买家查询所有订单编号)
+
+[jump to cancel order detail](doc/buyer.md#买家取消订单)
+
+[jump to auto cancel expired order detail](doc/seller.md#自动取消所有超时订单)
 
 ### Backend logic implementation
 
-// TODO
+#### ship / receive order
+
+Add a `STATUS` for each order, and update the `STATUS` when the order is shipped or received. We still subtract stock level when the order is created, since the stock level represent all current availabe books. When an order is cancelled, its stock level are added back.
+
+#### query order (id list)
+
+Directly query through database.
+
+#### cancel order
+
+For manually cancel, just update the `STATUS` of the order to `CANCELED`. Notice only unpaid order (thus unshipped, unreceived and uncanceled) can be canceled.
+
+For auto cancel, we provide an API to auto remove all expired order. Expiration time and current time are required by this API. Users are expected to launch a daemon to call this API each `expiration_time`. For example, if `expiration_time` is 1 hour, then the daemon should be launched every 1 hour.
 
 ### database operation design
 
