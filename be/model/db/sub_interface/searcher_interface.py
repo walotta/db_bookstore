@@ -25,9 +25,20 @@ class SearcherInterface:
         else:
             return result[dictName]
 
+    def find_book_with_one_dict_n(
+        self, dict_name: str, value: Union[int, str], store_id: Optional[str] = None
+    ) -> int:
+        pass
+
     def find_book_with_one_dict(
-        self, dictName: str, value, st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[Dict[str,str]], int]:
+        self,
+        dict_name: str,
+        value: Union[int, str],
+        st: int,
+        ed: int,
+        return_dict: List[str],
+        store_id: Optional[str] = None,
+    ) -> List[Dict[str, str]]:
         """
         This function could search books with one dict matching.
         Input:
@@ -48,53 +59,38 @@ class SearcherInterface:
         """
         pass
 
+    def find_book_with_content_n(
+        self, content_piece: str, store_id: Optional[str] = None
+    ) -> int:
+        pass
+
     def find_book_with_content(
-        self, content_piece: str, st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[Dict[str,str]], int]:
+        self,
+        content_piece: str,
+        st: int,
+        ed: int,
+        return_dict: List[str],
+        store_id: Optional[str] = None,
+    ) -> List[Dict[str, str]]:
         """
         This function returns a book_id which have a part of content_piece
         """
         pass
 
+    def find_book_with_tag_n(
+        self, tags: List[str], store_id: Optional[str] = None
+    ) -> int:
+        pass
+
     def find_book_with_tag(
-        self, tags: List[str], st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[Dict[str,str]], int]:
+        self,
+        tags: List[str],
+        st: int,
+        ed: int,
+        return_dict: List[str],
+        store_id: Optional[str] = None,
+    ) -> List[Dict[str, str]]:
         """
         This function returns a book_id which have a tag
-        """
-        pass
-
-    def find_book_in_one_store(
-        self,
-        store_id: str,
-        dictName: str,
-        value,
-        st: int,
-        ed: int,
-        return_dict: List[str],
-    ) -> Tuple[List[Dict[str,str]], int]:
-        """
-        This function will return a book_id which only in one store with book[dictName]=value
-        """
-        pass
-
-    def find_book_in_one_store_with_content(
-        self,
-        store_id: str,
-        content_piece: str,
-        st: int,
-        ed: int,
-        return_dict: List[str],
-    ) -> Tuple[List[Dict[str,str]], int]:
-        """
-        This function will return a book_id which only in one store with book[dictName]=value
-        """
-        pass
-
-    def find_book_in_one_store_with_tag(
-        self, store_id: str, tags: List[str], st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[Dict[str,str]], int]:
-        """
-        This function will return a book_id which only in one store with book[dictName]=value
         """
         pass
