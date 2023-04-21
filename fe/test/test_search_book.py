@@ -1,7 +1,7 @@
 import pytest
 
 from fe.test.gen_book_data import GenBook
-from access.searcher import Searcher
+from fe.access.searcher import Searcher
 from fe.access import book
 from fe import conf
 import uuid, random
@@ -200,7 +200,7 @@ class TestSearchBook:
                     and i % self.seller_number == j % self.seller_number
                 ):
                     answer_list.append(
-                        (add
+                        (
                             self.seller_id_list[j % self.seller_number],
                             self.books[j].title,
                         )
