@@ -221,8 +221,10 @@ class Buyer:
         except BaseException as e:
             return 530, "{}".format(str(e)), []
         return 200, "ok", order_list
-    
-    def cancel_order(self, user_id: str, password: str, order_id: str) -> Tuple[int, str]:
+
+    def cancel_order(
+        self, user_id: str, password: str, order_id: str
+    ) -> Tuple[int, str]:
         try:
             result = self.db.user.get_password(user_id)
             if result is None:

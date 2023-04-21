@@ -69,6 +69,7 @@ def query_order_id_list():
     code, message, order_id_list = b.query_order_id_list(user_id, password)
     return jsonify({"message": message, "order_id_list": order_id_list}), code
 
+
 @bp_buyer.route("/cancel_order", methods=["POST"])
 def cancel_order():
     user_id = request.json.get("user_id")
