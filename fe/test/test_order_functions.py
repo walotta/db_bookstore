@@ -50,9 +50,6 @@ class TestOrderFunctions:
             order_id, total_price = new_order(i)
             self.order_id_list.append(order_id)
             self.price_list.append(total_price)
-        yield
-
-    def test_order_functions(self):
         for i in range(self.order_num):
             order_id = self.order_id_list[i]
             total_price = self.price_list[i]
@@ -76,6 +73,9 @@ class TestOrderFunctions:
                 continue
             code = self.buyer.receive_order(order_id)
             assert code == 200
+        yield
+
+    def test_query_order(self):
         code, order_id_list = self.buyer.query_order_id_list()
         assert code == 200
         assert order_id_list == self.order_id_list
