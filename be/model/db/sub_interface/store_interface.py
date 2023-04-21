@@ -35,7 +35,14 @@ class StoreInterface:
         else:
             return StoreBookTmp.from_dict(doc)
 
-    def add_book_stock_level(self, store_id: str, book_id: str, count: int) -> int:
+    def get_book_info(self, book_info_id: str) -> Optional[Dict[str, Any]]:
+        doc = self.bookInfoCol.find_one({"_id": book_info_id})
+        if doc is None:
+            return None
+        else:
+            return doc["book_info"]
+
+    def add_stock_level(self, store_id: str, book_id: str, count: int) -> int:
         result = self.storeCol.update_one(
             {
                 "store_id": store_id,

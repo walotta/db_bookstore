@@ -49,7 +49,7 @@ class Seller:
             if not self.db.store.book_id_exist(store_id, book_id):
                 return error.error_non_exist_book_id(book_id)
 
-            self.db.store.add_book_stock_level(
+            self.db.store.add_stock_level(
                 store_id=store_id, book_id=book_id, count=add_stock_level
             )
         except PyMongoError as e:
@@ -105,7 +105,7 @@ class Seller:
                 if order is None:
                     continue
                 for book_item in order.book_list:
-                    self.db.store.add_book_stock_level(
+                    self.db.store.add_stock_level(
                         order.store_id, book_item.book_id, book_item.count
                     )
         except PyMongoError as e:
