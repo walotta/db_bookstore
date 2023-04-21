@@ -3,6 +3,8 @@ from flask import request
 from flask import jsonify
 from typing import List, Any, Tuple, Union, Optional
 from be.model import searcher
+from be.model import error
+import logging
 
 bp_searcher = Blueprint("searcher", __name__, url_prefix="/searcher")
 
@@ -15,7 +17,7 @@ def find_book() -> Any:
         kind:           str
         store_id:       str
         dict_name:      str
-        value:          str/int
+        value:          str/int/List[str]
         page_number:    int
 
     Return:
@@ -41,6 +43,7 @@ def find_book() -> Any:
     The store_id could be None
     """
     assert request.json is not None
+    code = 200
     # print("debug: reaquest.json=",request.json)
     kind: str = request.json.get("kind")
     store_id: Optional[str] = request.json.get("store_id")
@@ -50,23 +53,30 @@ def find_book() -> Any:
 
     s = searcher.Searcher()
 
-    if kind == "one_dict":
-        # print("debug: value=",value,"Type of value is",type(value))
-        assert type(value) is int or type(value) is str
-        assert type(dict_name) is str
-        total_page, books = s.find_book_with_one_dict(
-            dict_name, value, page_number, store_id
-        )
-    elif kind == "tags":
-        assert type(value) is list and type(value[0]) is str
-        total_page, books = s.find_book_with_tag(value, page_number, store_id)
-    elif kind == "content":
-        assert type(value) is str
-        total_page, books = s.find_book_with_content(value, page_number, store_id)
-    else:
-        pass
+    try:
+        if kind == "one_dict":
+            # print("debug: value=",value,"Type of value is",type(value))
+            assert type(value) is int or type(value) is str
+            assert type(dict_name) is str
+            total_page, books = s.find_book_with_one_dict(
+                dict_name, value, page_number, store_id
+            )
+        elif kind == "tags":
+            assert type(value) is list and type(value[0]) is str
+            total_page, books = s.find_book_with_tag(value, page_number, store_id)
+        elif kind == "content":
+            assert type(value) is str
+            total_page, books = s.find_book_with_content(value, page_number, store_id)
+        else:
+            assert False
+    except BaseException as e:
+        logging.info("523, " + error.error_code[523])
+        return 523, error.error_code[523]
 
-    code = 200
+    except:
+        logging.info("522, {}".format(error.error_code[522]))
+        return 522, error.error_code[522]
+
     return (
         jsonify(
             {
