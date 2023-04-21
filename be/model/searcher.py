@@ -19,6 +19,8 @@ class Searcher:
         """
         Tuple[str,str] means (store_id, title)
         """
+        if dictName is None or dictName == "" or value is None or value == "":
+            raise BaseException
         st = (page - 1) * self.page_size + 1
         ed = page * self.page_size
         return_dict = ["store_id", "title"]
@@ -33,6 +35,8 @@ class Searcher:
     def find_book_with_content(
         self, content_piece: str, page: int, store_id: Optional[str] = None
     ) -> Tuple[int, List[Tuple[str, str]]]:
+        if content_piece is None or content_piece == "":
+            raise BaseException
         st = (page - 1) * self.page_size + 1
         ed = page * self.page_size
         return_dict = ["store_id", "title"]
@@ -46,6 +50,8 @@ class Searcher:
     def find_book_with_tag(
         self, tags: List[str], page: int, store_id: Optional[str] = None
     ) -> Tuple[int, List[Tuple[str, str]]]:
+        if tags is None or tags == []:
+            raise BaseException
         st = (page - 1) * self.page_size + 1
         ed = page * self.page_size
         return_dict = ["store_id", "title"]

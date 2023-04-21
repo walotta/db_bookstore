@@ -11,8 +11,8 @@ error_code = {
     519: "not sufficient funds, order id {}",
     520: "error order status, order id {}, expected status {}, actual status {}",
     521: "",
-    522: "",
-    523: "",
+    522: "kind missing or invalid",
+    523: "parameter for search missing",
     524: "",
     525: "",
     526: "",
@@ -62,6 +62,14 @@ def error_authorization_fail():
 
 def error_order_status(order_id, expected_status, actual_status):
     return 520, error_code[520].format(order_id, expected_status, actual_status)
+
+
+def error_search_kind():
+    return 522, error_code[522]
+
+
+def error_search_parameter_missing():
+    return 523, error_code[523]
 
 
 def error_and_message(code, message):
