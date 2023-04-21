@@ -68,5 +68,5 @@ def find_book():
                 "book_information": books,
             }
         ),
-        code
+        code,
     )

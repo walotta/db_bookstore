@@ -24,8 +24,8 @@ class SearcherInterface:
 
     def find_book_with_one_dict_n(
         self, dict_name: str, value: Union[int, str], store_id: Optional[str] = None
-    ) -> int: 
-        query:Dict[str,Any]
+    ) -> int:
+        query: Dict[str, Any]
         if store_id is None:
             query = {dict_name: value}
         else:
@@ -58,7 +58,7 @@ class SearcherInterface:
         The function returns some books with book[dictName]=value
         This function would not search by book_id
         """
-        query:Dict[str,Any]
+        query: Dict[str, Any]
         if store_id is None:
             query = {dict_name: value}
         else:
@@ -74,7 +74,7 @@ class SearcherInterface:
     def find_book_with_content_n(
         self, content_piece: str, store_id: Optional[str] = None
     ) -> int:
-        query:Dict[str,Any]
+        query: Dict[str, Any]
         if store_id is None:
             query = {"content": {"$regex": content_piece}}
         else:
@@ -92,7 +92,7 @@ class SearcherInterface:
         """
         This function returns a book_id which have a part of content_piece
         """
-        query:Dict[str,Any]
+        query: Dict[str, Any]
         if store_id is None:
             query = {"content": {"$regex": content_piece}}
         else:
@@ -110,8 +110,8 @@ class SearcherInterface:
 
     def find_book_with_tag_n(
         self, tags: List[str], store_id: Optional[str] = None
-    ) -> int: 
-        query:Dict[str,Any]
+    ) -> int:
+        query: Dict[str, Any]
         if store_id is None:
             query = {"tags": {"$all": tags}}
         else:
@@ -129,7 +129,7 @@ class SearcherInterface:
         """
         This function returns a book_id which have a tag
         """
-        query:Dict[str,Any]
+        query: Dict[str, Any]
         if store_id is None:
             query = {"tags": {"$all": tags}}
         else:
