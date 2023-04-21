@@ -7,11 +7,13 @@ from be.model import searcher
 bp_searcher = Blueprint("search", __name__, url_prefix="/search")
 
 
-@bp_searcher.route("/find_book_with_one_dict", methods=["POST"])
-def find_book_with_one_dict():
+@bp_searcher.route("/find_book", methods=["POST"])
+def find_book():
     """
     This function can find books with one dict
     Input:
+        kind:           str
+        store_id:       str
         dict_name:      str
         value:          str/int
         page_number:    int
@@ -35,22 +37,38 @@ def find_book_with_one_dict():
         author_intro: str
         book_intro: str
     We can only search for the book whose property is fully match on these dicts.
+    The kind should be "one_dict","tags","content"
+    The store_id could be None
     """
+    kind: str = request.json.get("kind")
+    store_id: str = request.json.get("store_id")
     dict_name: str = request.json.get("dict_name")
-    value: List[Any] = request.json.get("value")
-    # todo
+    value: List[str] = request.json.get("value")
+    page_number: int = request.json.get("page_number")
 
     s = searcher.Searcher()
+
+    if store_id is None:
+        flag=False
+    else:
+        flag=True
+
+    if kind=='one_dict':
+        if flag:
+            pass
+        else:
+            pass
+        pass
+    elif kind=='tags':
+        pass
+    elif kind=='content':
+        pass
+    else:
+        return None, 0 # todo: check error code
+
+
+
 
     code, book = s.find_book_with_one_dict(dict_name, value)
     return jsonify({"book": book}), code
 
-
-@bp_searcher.route("/find_book_with_content", methods=["POST"])
-def find_book_with_content():
-    content_piece: str = request.json.get("content")
-
-    s = searcher.Searcher()
-
-    code, book = s.find_book_with_content(content_piece)
-    return jsonify({"book": book}), code

@@ -35,7 +35,7 @@ class SearcherInterface:
 
     def find_book_with_one_dict(
         self, dictName: str, value, st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[List[str]], int]:
+    ) -> Tuple[List[Dict[str,str]], int]:
         """
         This function could search books with one dict matching.
         Input:
@@ -58,7 +58,7 @@ class SearcherInterface:
 
     def find_book_with_content(
         self, content_piece: str, st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[List[str]], int]:
+    ) -> Tuple[List[Dict[str,str]], int]:
         """
         This function returns a book_id which have a part of content_piece
         """
@@ -66,7 +66,7 @@ class SearcherInterface:
 
     def find_book_with_tag(
         self, tags: List[str], st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[List[str]], int]:
+    ) -> Tuple[List[Dict[str,str]], int]:
         """
         This function returns a book_id which have a tag
         """
@@ -80,7 +80,7 @@ class SearcherInterface:
         st: int,
         ed: int,
         return_dict: List[str],
-    ) -> Tuple[List[List[str]], int]:
+    ) -> Tuple[List[Dict[str,str]], int]:
         """
         This function will return a book_id which only in one store with book[dictName]=value
         """
@@ -93,7 +93,7 @@ class SearcherInterface:
         st: int,
         ed: int,
         return_dict: List[str],
-    ) -> Tuple[List[List[str]], int]:
+    ) -> Tuple[List[Dict[str,str]], int]:
         """
         This function will return a book_id which only in one store with book[dictName]=value
         """
@@ -101,7 +101,7 @@ class SearcherInterface:
 
     def find_book_in_one_store_with_tag(
         self, store_id: str, tags: List[str], st: int, ed: int, return_dict: List[str]
-    ) -> Tuple[List[List[str]], int]:
+    ) -> Tuple[List[Dict[str,str]], int]:
         """
         This function will return a book_id which only in one store with book[dictName]=value
         """
