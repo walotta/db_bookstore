@@ -58,6 +58,7 @@ class Buyer:
                 book_list=book_list,
             )
             self.db.new_order.insert_new_order(new_order)
+            self.db.user.add_order(user_id, order_id)
 
         except PyMongoError as e:
             logging.info("528, {}".format(str(e)))
@@ -212,7 +213,7 @@ class Buyer:
             if result != password:
                 return error.error_authorization_fail() + ([],)
 
-            order_list = self.db.new_order.get_order_list(user_id)
+            order_list = self.db.user.get_order_list(user_id)
             if order_list is None:
                 return error.error_non_exist_user_id(user_id) + ([],)
         except PyMongoError as e:
