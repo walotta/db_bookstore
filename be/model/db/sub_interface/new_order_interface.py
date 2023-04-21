@@ -1,7 +1,7 @@
 from ..db_client import DBClient
 from pymongo.collection import Collection
 from ...template.new_order_template import NewOrderTemp, NewOrderBookItemTemp
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from ...template.new_order_template import STATUS
 
 
@@ -49,7 +49,7 @@ class NewOrderInterface:
         # and status == INIT(0), change its status to CANCELLED(4)
         # returns: a list of order_id, represent all cancelled order
 
-        pipeline = [
+        pipeline: List[Dict[str, Any]] = [
             {"$match": {"status": 0}},
             {
                 "$project": {
