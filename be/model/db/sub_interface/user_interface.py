@@ -21,7 +21,7 @@ class UserInterface:
 
     def add_balance(self, user_id: str, count: int) -> int:
         result = self.userCol.update_one(
-            {"user_id": user_id, "balance": {"$gte": -count}},
+            {"user_id": user_id, "balance": {"$gte": min(0, -count)}},
             {"$inc": {"balance": count}},
         )
         return result.modified_count

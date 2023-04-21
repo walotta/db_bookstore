@@ -44,6 +44,18 @@ def add_stock_level():
     return jsonify({"message": message}), code
 
 
+@bp_seller.route("/get_book_stock_level", methods=["POST"])
+def get_book_stock_level():
+    user_id: str = request.json.get("user_id")
+    store_id: str = request.json.get("store_id")
+    book_id: str = request.json.get("book_id")
+
+    s = seller.Seller()
+    code, message, stock_level = s.get_book_stock_level(user_id, store_id, book_id)
+
+    return jsonify({"message": message, "stock_level": stock_level}), code
+
+
 @bp_seller.route("/ship_order", methods=["POST"])
 def ship_order():
     user_id: str = request.json.get("user_id")
@@ -60,5 +72,10 @@ def auto_cancel_expired_order():
     current_time = request.json.get("current_time")
     expire_time = request.json.get("expire_time")
     s = seller.Seller()
-    code, message = s.auto_cancel_expired_order(current_time, expire_time)
-    return jsonify({"message": message}), code
+    code, message, canceled_order_id_list = s.auto_cancel_expired_order(
+        current_time, expire_time
+    )
+    return (
+        jsonify({"message": message, "canceled_order_id_list": canceled_order_id_list}),
+        code,
+    )

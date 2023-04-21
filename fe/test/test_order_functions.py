@@ -6,6 +6,7 @@ from fe.access.new_seller import register_new_seller
 from fe.access.book import Book
 import uuid
 import random
+import collections
 
 
 class TestOrderFunctions:
@@ -115,11 +116,44 @@ class TestOrderFunctions:
 
     def test_auto_cancel_expired_order_ok(self):
         current_time = 9
-        self.gen_book_list[0].seller.auto_cancel_expired_order(
-            current_time, self.expire_time
-        )
+        code, canceled_order_id_list = self.gen_book_list[
+            0
+        ].seller.auto_cancel_expired_order(current_time, self.expire_time)
+        assert code == 200
         for i in range(self.order_num):
             if i + self.expire_time >= current_time and self.status_list[i] == 0:
                 order_id = self.order_id_list[i]
                 order = self.buyer.query_order(order_id)[1]
                 assert order["status"] == 4
+                assert order_id in canceled_order_id_list
+
+    def test_cancel_order_recoup_stock_level(self):
+        for i in range(self.order_num):
+            order_id = self.order_id_list[i]
+            status = self.status_list[i]
+            if status == 0:
+                old_level = dict()
+                buy_num = collections.defaultdict(int)
+                for book in self.buy_book_id_list_list[i]:
+                    book_id = book[0]
+                    count = book[1]
+                    code, stock_level = self.gen_book_list[
+                        i
+                    ].seller.get_book_stock_level(self.store_id + str(i), book_id)
+                    assert code == 200
+                    old_level[book_id] = stock_level
+                    buy_num[book_id] += count
+
+                code = self.buyer.cancel_order(order_id)
+                assert code == 200
+
+                new_level = dict()
+                for book in self.buy_book_id_list_list[i]:
+                    book_id = book[0]
+                    code, stock_level = self.gen_book_list[
+                        i
+                    ].seller.get_book_stock_level(self.store_id + str(i), book_id)
+                    assert code == 200
+                    new_level[book_id] = stock_level
+                for book_id, old in old_level.items():
+                    assert new_level[book_id] == old + buy_num[book_id]

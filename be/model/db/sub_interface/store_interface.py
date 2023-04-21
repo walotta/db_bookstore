@@ -35,14 +35,20 @@ class StoreInterface:
         else:
             return StoreBookTmp.from_dict(doc)
 
-    def add_book_stock_level(self, store_id: str, book_id: str, count: int) -> int:
+    def get_book_info(self, book_info_id: str) -> Optional[Dict[str, Any]]:
+        doc = self.bookInfoCol.find_one({"_id": book_info_id})
+        if doc is None:
+            return None
+        else:
+            return doc["book_info"]
+
+    def add_stock_level(self, store_id: str, book_id: str, count: int) -> int:
         result = self.storeCol.update_one(
-            {
-                "store_id": store_id,
-                "book_list.book_id": book_id,
-                "book_list.stock_level": {"$gte": -count},
-            },
-            {"$inc": {"book_list.$.stock_level": count}},
+            {"store_id": store_id},
+            {"$inc": {"book_list.$[elem].stock_level": count}},
+            array_filters=[
+                {"elem.book_id": book_id, "elem.stock_level": {"$gte": min(0, -count)}}
+            ],
         )
         return result.modified_count
 
@@ -67,13 +73,6 @@ class StoreInterface:
         self.storeCol.update_one(
             {"store_id": store_id}, {"$push": {"book_list": new_book.to_dict()}}
         )
-
-    def add_stock_level(self, store_id: str, book_id: str, add_stock_level: int) -> int:
-        result = self.storeCol.update_one(
-            {"store_id": store_id, "book_list.book_id": book_id},
-            {"$inc": {"book_list.$.stock_level": add_stock_level}},
-        )
-        return result.modified_count
 
     def insert_one_store(self, new_store: StoreTemp) -> None:
         self.storeCol.insert_one(new_store.to_dict())
