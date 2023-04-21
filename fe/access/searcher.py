@@ -14,7 +14,7 @@ class Searcher:
         dict_name: str,
         value: List[Union[str, int]],
         store_id: Optional[str],
-        page_number: int = 0,
+        page_number: int = 1,
     ) -> Tuple[int, int, int, List[Tuple[str, str]]]:
         json = {
             "kind": kind,
