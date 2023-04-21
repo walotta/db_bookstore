@@ -144,6 +144,8 @@ price = int
 
 [jump to auto cancel expired order detail](doc/seller.md#自动取消所有超时订单)
 
+[jump to find books with specific requirment](doc/searcher.md#搜索书籍)
+
 ### Backend logic implementation
 
 #### ship / receive order
@@ -159,6 +161,12 @@ Directly query through database.
 For manually cancel, just update the `STATUS` of the order to `CANCELED`. Notice only unpaid order (thus unshipped, unreceived and uncanceled) can be canceled.
 
 For auto cancel, we provide an API to auto remove all expired order. Expiration time and current time are required by this API. Users are expected to launch a daemon to call this API each `expiration_time`. For example, if `expiration_time` is 1 hour, then the daemon should be launched every 1 hour.
+
+#### search books
+
+Add a searcher for all requirments of searching books with specific needs. This API would gives you a list of book names and the stores that sells them. Because there are big differences between find book by sigle label or find book by contents of the book or by tags, the backend recognize them as three different situations to process.
+
+We provide an API for diverse searching needs. you can search by the book's title, author, content, tags and so on. Users use `dict_name` to assign the label he/she wants to search, and use `kind` to choose the specific kind of search he/she need. Also, for the situation that there are too many return values, the user can use `page_number` to choose the page of information he/she want to see.
 
 ### database operation design
 
