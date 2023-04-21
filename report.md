@@ -166,7 +166,13 @@ For auto cancel, we provide an API to auto remove all expired order. Expiration 
 
 ### Test case design
 
-// TODO
+#### test_order_deliver.py
+
+This test mainly tests the function of order shipping and receiving. One key concern is the status of order can only change in a specific order: INIT -> PAID -> SHIPPED -> RECEIVED (or INIT -> CANCELED when cancelling an order). So we test the status of order after each operation. We also make sure it correctly error at invalid order.
+
+#### test_order_functions.py
+
+This test mainly tests all new order functions, such as query, cancel and auto cancel. We test the correctness of the returned value and the status of order after each operation. We also test the stock level of books are correctly recouped after cancelling an order.
 
 ## Collaborate with GitHub
 
