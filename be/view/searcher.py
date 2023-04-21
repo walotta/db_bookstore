@@ -4,30 +4,53 @@ from flask import jsonify
 from typing import List, Any
 from be.model import searcher
 
-bp_searcher = Blueprint("auth", __name__, url_prefix="/auth")
+bp_searcher = Blueprint("search", __name__, url_prefix="/search")
 
 
-@bp_searcher.route("/find_book", methods=["POST"])
-def find_book():
+@bp_searcher.route("/find_book_with_one_dict", methods=["POST"])
+def find_book_with_one_dict():
+    """
+    This function can find books with one dict
+    Input:
+        dict_name:      str
+        value:          str/int
+        page_number:    int
+
+    Return:
+        {page_number, current_page}, List[store_id, book_title], return_code
+
+    the dict can search by this function include:
+        id: str
+        title: str
+        author: str
+        publisher: str
+        original_title: str
+        translator: str
+        pub_year: str
+        pages: int
+        price: int
+        currency_unit: int
+        binding: str
+        isbn: str
+        author_intro: str
+        book_intro: str
+    We can only search for the book whose property is fully match on these dicts.
+    """
     dict_name: str = request.json.get("dict_name")
     value: List[Any] = request.json.get("value")
     # todo
 
     s = searcher.Searcher()
 
-    code, book=s.find_book_with_one_dict(dict_name, value)
-    return jsonify({"book":book}), code
+    code, book = s.find_book_with_one_dict(dict_name, value)
+    return jsonify({"book": book}), code
 
-    # user_id: str = request.json.get("user_id")
-    # store_id: str = request.json.get("store_id")
-    # books: List[Any] = request.json.get("books")
-    # id_and_count = []
-    # for book in books:
-    #     book_id = book.get("id")
-    #     count = book.get("count")
-    #     id_and_count.append((book_id, count))
 
-    # b = Buyer()
-    # code, message, order_id = b.new_order(user_id, store_id, id_and_count)
-    # return jsonify({"message": message, "order_id": order_id}), code
-    pass
+@bp_searcher.route("/find_book_with_content", methods=["POST"])
+def find_book_with_content():
+    content_piece: str = request.json.get("content")
+
+    s = searcher.Searcher()
+
+    code, book = s.find_book_with_content(content_piece)
+    return jsonify({"book": book}), code
