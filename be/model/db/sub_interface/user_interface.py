@@ -76,7 +76,6 @@ class UserInterface:
         return result.modified_count
 
     def add_order(self, user_id: str, order_id: str) -> int:
-        # TODO: check this copilot-generated code for correctness
         result = self.userCol.update_one(
             {"user_id": user_id},
             {"$push": {"order_id_list": order_id}},
@@ -84,7 +83,6 @@ class UserInterface:
         return result.modified_count
 
     def get_order_list(self, user_id: str) -> Optional[List[str]]:
-        # TODO check this copilot-generated code is right
         result = self.userCol.find_one(
             {"user_id": user_id}, {"_id": 0, "order_id_list": 1}
         )
