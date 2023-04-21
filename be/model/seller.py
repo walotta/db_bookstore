@@ -92,3 +92,15 @@ class Seller:
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
+
+    def auto_cancel_expired_order(
+        self, current_time: int, expire_time: int
+    ) -> Tuple[int, str]:
+        try:
+            self.db.new_order.auto_cancel_expired_order(current_time, expire_time)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+
+        return 200, "ok"

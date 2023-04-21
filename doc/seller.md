@@ -217,3 +217,37 @@ order_id|string|订单号 | N
 401 | 授权失败
 5XX | 无效参数
 520 | 订单状态不正确，只有已付款的订单支持收货 
+
+## 自动取消所有超时订单
+
+#### URL
+
+POST http://[address]/seller/ship_order
+
+#### Request
+
+##### Body:
+
+```json
+{
+     "current_time": "current_time",
+     "expire_time": "expire_time",
+ }
+```
+
+##### 属性说明：
+
+key|类型|描述 | 是否可为空
+---|---|---|---
+ current_time | int | 当前的时间 | N          
+ expire_time | int | 经过多长时间算作过期 | N          
+
+#### Response
+
+##### Status Code:
+
+码 | 描述
+--- | ---
+200 | 取消成功
+5XX | 无效参数
+520 | 订单状态不正确，只有已付款的订单支持收货 

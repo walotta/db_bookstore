@@ -12,6 +12,7 @@ def new_order():
     user_id: str = request.json.get("user_id")
     store_id: str = request.json.get("store_id")
     books: List[Any] = request.json.get("books")
+    create_time: int = request.json.get("create_time")
     id_and_count = []
     for book in books:
         book_id = book.get("id")
@@ -19,7 +20,7 @@ def new_order():
         id_and_count.append((book_id, count))
 
     b = Buyer()
-    code, message, order_id = b.new_order(user_id, store_id, id_and_count)
+    code, message, order_id = b.new_order(user_id, store_id, id_and_count, create_time)
     return jsonify({"message": message, "order_id": order_id}), code
 
 

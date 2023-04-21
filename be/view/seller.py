@@ -53,3 +53,12 @@ def ship_order():
     code, message = s.ship_order(user_id, order_id)
 
     return jsonify({"message": message}), code
+
+
+@bp_seller.route("/auto_cancel_expired_order", methods=["POST"])
+def auto_cancel_expired_order():
+    current_time = request.json.get("current_time")
+    expire_time = request.json.get("expire_time")
+    s = seller.Seller()
+    code, message = s.auto_cancel_expired_order(current_time, expire_time)
+    return jsonify({"message": message}), code

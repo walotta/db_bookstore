@@ -31,12 +31,14 @@ class NewOrderTemp:
         user_id: str,
         store_id: str,
         book_list: List[NewOrderBookItemTemp],
+        create_time: int,
         status: STATUS = STATUS.INIT,
     ):
         self.order_id: str = order_id
         self.user_id: str = user_id
         self.store_id: str = store_id
         self.book_list: List[NewOrderBookItemTemp] = book_list
+        self.create_time: int = create_time
         self.status: STATUS = status
 
     def to_dict(self) -> Dict[str, Any]:
@@ -45,6 +47,7 @@ class NewOrderTemp:
             "user_id": self.user_id,
             "store_id": self.store_id,
             "book_list": [book_item.to_dict() for book_item in self.book_list],
+            "create_time": self.create_time,
             "status": self.status.value,
         }
 
@@ -58,5 +61,6 @@ class NewOrderTemp:
                 NewOrderBookItemTemp.from_dict(book_item)
                 for book_item in data["book_list"]
             ],
+            data["create_time"],
             STATUS(data["status"]),
         )
