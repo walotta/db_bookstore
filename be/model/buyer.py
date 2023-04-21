@@ -209,7 +209,7 @@ class Buyer:
         try:
             result = self.db.user.get_password(user_id)
             if result is None:
-                return error.error_non_exist_user_id() + ([],)
+                return error.error_non_exist_user_id(user_id) + ([],)
             if result != password:
                 return error.error_authorization_fail() + ([],)
 
@@ -228,7 +228,7 @@ class Buyer:
         try:
             result = self.db.user.get_password(user_id)
             if result is None:
-                return error.error_non_exist_user_id()
+                return error.error_non_exist_user_id(user_id)
             if result != password:
                 return error.error_authorization_fail()
 
