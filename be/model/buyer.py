@@ -206,12 +206,18 @@ class Buyer:
         self, user_id: str, password: str
     ) -> Tuple[int, str, List[str]]:
         try:
-            code, message = self.check_password(user_id, password)
-            if code != 200:
-                return code, message, []
-            order_list = self.db.order.get_order_list(user_id)
+            result = self.db.user.get_password(user_id)
+            if result is None:
+                return error.error_authorization_fail() + ([],)
+            if result != password:
+                return error.error_authorization_fail() + ([],)
+
+            order_list = self.db.new_order.get_order_list(user_id)
+            if order_list is None:
+                return error.error_non_exist_user_id(user_id) + ([],)
         except PyMongoError as e:
             return 528, "{}".format(str(e)), []
         except BaseException as e:
+            print(e)
             return 530, "{}".format(str(e)), []
         return 200, "ok", order_list

@@ -15,7 +15,6 @@ class TestOrderFunctions:
         self.store_id = "test_order_functions_store_id_{}".format(str(uuid.uuid1()))
         self.buyer_id = "test_order_functions_buyer_id_{}".format(str(uuid.uuid1()))
         self.password = self.seller_id
-        self.gen_book = GenBook(self.seller_id, self.store_id)
         b = register_new_buyer(self.buyer_id, self.password)
         self.buyer = b
         self.order_num = 12
@@ -23,16 +22,19 @@ class TestOrderFunctions:
         self.price_list = []
         self.buy_book_id_list_list = []
         self.status_list = []
+        self.gen_book_list = []
 
-        def new_order():
-            self.gen_book.buy_book_info_list.clear()
-            ok, buy_book_id_list = self.gen_book.gen(
+        def new_order(i):
+            gen_book = GenBook(self.seller_id + str(i), self.store_id + str(i))
+            self.gen_book_list.append(gen_book)
+            gen_book.buy_book_info_list.clear()
+            ok, buy_book_id_list = gen_book.gen(
                 non_exist_book_id=False, low_stock_level=False, max_book_count=5
             )
-            buy_book_info_list = self.gen_book.buy_book_info_list
+            buy_book_info_list = gen_book.buy_book_info_list
             assert ok
             self.buy_book_id_list_list.append(buy_book_id_list)
-            code, order_id = b.new_order(self.store_id, buy_book_id_list)
+            code, order_id = b.new_order(self.store_id + str(i), buy_book_id_list)
             assert code == 200
             total_price = 0
             for item in buy_book_info_list:
@@ -44,8 +46,8 @@ class TestOrderFunctions:
                     total_price = total_price + book.price * num
             return order_id, total_price
 
-        for _ in range(self.order_num):
-            order_id, total_price = new_order()
+        for i in range(self.order_num):
+            order_id, total_price = new_order(i)
             self.order_id_list.append(order_id)
             self.price_list.append(total_price)
         yield
@@ -64,24 +66,24 @@ class TestOrderFunctions:
             assert code == 200
             if status == 1:
                 continue
-            code = self.gen_book.seller.ship_order(order_id)
+            code = self.gen_book_list[i].seller.ship_order(order_id)
             assert code == 200
             if status == 2:
                 continue
             code = self.buyer.receive_order(order_id)
             assert code == 200
-        code, order_id_list = self.buyer.query_order_id_list(self.buyer_id, self.password)
+        code, order_id_list = self.buyer.query_order_id_list()
         assert code == 200
         assert order_id_list == self.order_id_list
-        order_list = [self.buyer.query_order(order_id) for order_id in order_id_list]
+        order_list = [self.buyer.query_order(order_id)[1] for order_id in order_id_list]
         for i in range(self.order_num):
             order = order_list[i]
             assert order["order_id"] == self.order_id_list[i]
             assert order["user_id"] == self.buyer_id
-            assert order["store_id"] == self.store_id
+            assert order["store_id"] == self.store_id + str(i)
             assert order["status"] == self.status_list[i]
             tot_price = 0
             for book in order["book_list"]:
-                assert book["book_id"] in self.buy_book_id_list_list[i]
+                assert book["book_id"] in [j[0] for j in self.buy_book_id_list_list[i]]
                 tot_price = tot_price + book["price"] * book["count"]
             assert tot_price == self.price_list[i]

@@ -61,7 +61,7 @@ class Buyer:
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
-    
+
     def query_order(self, order_id: str) -> Tuple[int, Dict[str, Any]]:
         json = {
             "user_id": self.user_id,

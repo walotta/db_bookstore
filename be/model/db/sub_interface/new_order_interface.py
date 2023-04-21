@@ -1,7 +1,7 @@
 from ..db_client import DBClient
 from pymongo.collection import Collection
 from ...template.new_order_template import NewOrderTemp, NewOrderBookItemTemp
-from typing import Optional
+from typing import Optional, List
 from ...template.new_order_template import STATUS
 
 
@@ -41,3 +41,13 @@ class NewOrderInterface:
             return None
         else:
             return STATUS(result["status"])
+
+    def get_order_list(self, user_id: str) -> Optional[List[str]]:
+        # TODO check this copilot-generated code is right
+        result = self.newOrderCol.find(
+            {"user_id": user_id}, {"_id": 0, "order_id": 1}
+        )
+        if result is None:
+            return None
+        else:
+            return [item["order_id"] for item in result]
