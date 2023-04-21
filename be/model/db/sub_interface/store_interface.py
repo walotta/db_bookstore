@@ -58,7 +58,7 @@ class StoreInterface:
     def insert_one_book(
         self, store_id: str, book_id: str, stock_level: int, book_info: str
     ) -> None:
-        new_book_info = BookInfoTemp(book_info)
+        new_book_info = BookInfoTemp(book_info, store_id)
         result = self.bookInfoCol.insert_one(new_book_info.to_dict())
         info_id = result.inserted_id
         new_book = StoreBookTmp(

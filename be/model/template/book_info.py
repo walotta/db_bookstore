@@ -1,11 +1,15 @@
 import json
+from typing import Optional
 
 
 class BookInfoTemp:
-    # todo: Maybe walotta need to update this class
-    def __init__(self, book_info: str):
+    def __init__(self, book_info: str, store_id: Optional[str] = None):
         temp_dict = json.loads(book_info)
         temp_dict["book_id"] = temp_dict.pop("id")
+        if store_id is not None:
+            temp_dict["store_id"] = store_id
+        else:
+            assert "store_id" in temp_dict.keys()
         for key in temp_dict:
             setattr(self, key, temp_dict[key])
 

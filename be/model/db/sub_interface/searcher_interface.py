@@ -2,6 +2,7 @@ from typing import List, Dict, Any, Optional, Union, Tuple
 from pymongo.collection import Collection
 from ...template.book_info import BookInfoTemp
 from ..db_client import DBClient
+import re
 
 
 class SearcherInterface:
@@ -16,7 +17,7 @@ class SearcherInterface:
         This function will return a single information of match info_id
         """
         result = self.bookInfoCol.find_one({"_id": info_id}, {"_id": 0, dictName: 1})
-        print(result)
+        # print(result)
         if result is None:
             return None
         else:
@@ -66,6 +67,7 @@ class SearcherInterface:
         return_filter = {"_id": 0}
         for i in return_dict:
             return_filter[i] = 1
+        # print(return_filter)
         result = (
             self.bookInfoCol.find(query, return_filter).skip(st - 1).limit(ed - st + 1)
         )
@@ -75,6 +77,8 @@ class SearcherInterface:
         self, content_piece: str, store_id: Optional[str] = None
     ) -> int:
         query: Dict[str, Any]
+        assert len(content_piece) != 0
+        content_piece = re.escape(content_piece)
         if store_id is None:
             query = {"content": {"$regex": content_piece}}
         else:
@@ -93,6 +97,8 @@ class SearcherInterface:
         This function returns a book_id which have a part of content_piece
         """
         query: Dict[str, Any]
+        assert len(content_piece) != 0
+        content_piece = re.escape(content_piece)
         if store_id is None:
             query = {"content": {"$regex": content_piece}}
         else:

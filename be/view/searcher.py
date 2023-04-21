@@ -1,14 +1,14 @@
 from flask import Blueprint
 from flask import request
 from flask import jsonify
-from typing import List, Any
+from typing import List, Any, Tuple, Union, Optional
 from be.model import searcher
 
-bp_searcher = Blueprint("search", __name__, url_prefix="/search")
+bp_searcher = Blueprint("searcher", __name__, url_prefix="/searcher")
 
 
 @bp_searcher.route("/find_book", methods=["POST"])
-def find_book():
+def find_book() -> Any:
     """
     This function can find books with one dict
     Input:
@@ -40,22 +40,29 @@ def find_book():
     The kind should be "one_dict","tags","content"
     The store_id could be None
     """
+    assert request.json is not None
+    # print("debug: reaquest.json=",request.json)
     kind: str = request.json.get("kind")
-    store_id: str = request.json.get("store_id")
-    dict_name: str = request.json.get("dict_name")
-    value: List[str] = request.json.get("value")
+    store_id: Optional[str] = request.json.get("store_id")
+    dict_name: Optional[str] = request.json.get("dict_name")
+    value: Union[List[str], str, int] = request.json.get("value")
     page_number: int = request.json.get("page_number")
 
     s = searcher.Searcher()
 
     if kind == "one_dict":
+        # print("debug: value=",value,"Type of value is",type(value))
+        assert type(value) is int or type(value) is str
+        assert type(dict_name) is str
         total_page, books = s.find_book_with_one_dict(
-            dict_name, value[0], page_number, store_id
+            dict_name, value, page_number, store_id
         )
     elif kind == "tags":
+        assert type(value) is list and type(value[0]) is str
         total_page, books = s.find_book_with_tag(value, page_number, store_id)
     elif kind == "content":
-        total_page, books = s.find_book_with_content(value[0], page_number, store_id)
+        assert type(value) is str
+        total_page, books = s.find_book_with_content(value, page_number, store_id)
     else:
         pass
 
