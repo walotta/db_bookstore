@@ -38,10 +38,8 @@ class Buyer:
                     return error.error_non_exist_book_id(book_id) + (order_id,)
                 stock_level = match_book.stock_level
                 book_info_id = match_book.book_info_id
-                book_info = self.db.store.get_book_info(book_info_id)
-                assert book_info is not None
-                book_info_json = json.loads(book_info)
-                price = book_info_json.get("price")
+                price = self.db.searcher.get_one_info_by_info_id(book_info_id, "price")
+                assert price is not None
 
                 if stock_level < count:
                     return error.error_stock_level_low(book_id) + (order_id,)

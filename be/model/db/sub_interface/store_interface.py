@@ -3,6 +3,7 @@ from pymongo.collection import Collection
 from ...template.store_template import StoreBookTmp, StoreTemp
 from ... import error
 from typing import List, Dict, Any, Optional
+from ...template.book_info import BookInfoTemp
 
 
 class StoreInterface:
@@ -34,13 +35,6 @@ class StoreInterface:
         else:
             return StoreBookTmp.from_dict(doc)
 
-    def get_book_info(self, book_info_id: str) -> Optional[Dict[str, Any]]:
-        doc = self.bookInfoCol.find_one({"_id": book_info_id})
-        if doc is None:
-            return None
-        else:
-            return doc["book_info"]
-
     def add_book_stock_level(self, store_id: str, book_id: str, count: int) -> int:
         result = self.storeCol.update_one(
             {
@@ -64,7 +58,8 @@ class StoreInterface:
     def insert_one_book(
         self, store_id: str, book_id: str, stock_level: int, book_info: str
     ) -> None:
-        result = self.bookInfoCol.insert_one({"book_info": book_info})
+        new_book_info = BookInfoTemp(book_info, store_id)
+        result = self.bookInfoCol.insert_one(new_book_info.to_dict())
         info_id = result.inserted_id
         new_book = StoreBookTmp(
             book_id=book_id, book_info_id=info_id, stock_level=stock_level
