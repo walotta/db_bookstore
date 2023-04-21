@@ -73,6 +73,27 @@ class Seller:
             return 530, "{}".format(str(e))
         return 200, "ok"
 
+    def get_book_stock_level(
+        self, user_id: str, store_id: str, book_id: str
+    ) -> Tuple[int, str, int]:
+        try:
+            if not self.db.user.user_id_exist(user_id):
+                return error.error_non_exist_user_id(user_id)
+            if not self.db.store.store_id_exist(store_id):
+                return error.error_non_exist_store_id(store_id)
+            if not self.db.store.book_id_exist(store_id, book_id):
+                return error.error_non_exist_book_id(book_id)
+
+            book = self.db.store.find_book(store_id, book_id)
+            if book is None:
+                return error.error_non_exist_book_id(book_id)
+            stock_level = book.stock_level
+        except PyMongoError as e:
+            return 528, "{}".format(str(e)), -1
+        except BaseException as e:
+            return 530, "{}".format(str(e)), -1
+        return 200, "ok", stock_level
+
     def ship_order(self, user_id: str, order_id: str) -> Tuple[int, str]:
         try:
             if not self.db.user.user_id_exist(user_id):

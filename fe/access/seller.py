@@ -54,6 +54,18 @@ class Seller:
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
 
+    def get_book_stock_level(self, store_id: str, book_id: str) -> Tuple[int, int]:
+        json = {
+            "user_id": self.seller_id,
+            "store_id": store_id,
+            "book_id": book_id,
+        }
+        # print(simplejson.dumps(json))
+        url = urljoin(self.url_prefix, "get_book_stock_level")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        return r.status_code, r.json()["stock_level"]
+
     def ship_order(self, order_id: str) -> int:
         json = {
             "user_id": self.seller_id,

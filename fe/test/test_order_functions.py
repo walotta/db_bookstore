@@ -6,6 +6,7 @@ from fe.access.new_seller import register_new_seller
 from fe.access.book import Book
 import uuid
 import random
+import collections
 
 
 class TestOrderFunctions:
@@ -131,12 +132,29 @@ class TestOrderFunctions:
             order_id = self.order_id_list[i]
             status = self.status_list[i]
             if status == 0:
-                code = self.buyer.cancel_order(order_id)
-                assert code == 200
+                old_level = dict()
+                buy_num = collections.defaultdict(int)
                 for book in self.buy_book_id_list_list[i]:
                     book_id = book[0]
                     count = book[1]
-                    # TODO uncomment the following lines after searcher is done
-                    # code, book = self.gen_book_list[i].seller.query_book(book_id)
-                    # assert code == 200
-                    # assert book.stock_level == count
+                    code, stock_level = self.gen_book_list[
+                        i
+                    ].seller.get_book_stock_level(self.store_id + str(i), book_id)
+                    assert code == 200
+                    old_level[book_id] = stock_level
+                    buy_num[book_id] += count
+
+                code = self.buyer.cancel_order(order_id)
+                assert code == 200
+
+                new_level = dict()
+                for book in self.buy_book_id_list_list[i]:
+                    book_id = book[0]
+                    code, stock_level = self.gen_book_list[
+                        i
+                    ].seller.get_book_stock_level(self.store_id + str(i), book_id)
+                    assert code == 200
+                    new_level[book_id] = stock_level
+                for book_id, old in old_level.items():
+                    assert new_level[book_id] == old + buy_num[book_id]
+                    
