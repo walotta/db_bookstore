@@ -157,4 +157,3 @@ class TestOrderFunctions:
                     new_level[book_id] = stock_level
                 for book_id, old in old_level.items():
                     assert new_level[book_id] == old + buy_num[book_id]
-                    

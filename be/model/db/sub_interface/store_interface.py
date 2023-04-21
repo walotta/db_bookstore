@@ -46,7 +46,9 @@ class StoreInterface:
         result = self.storeCol.update_one(
             {"store_id": store_id},
             {"$inc": {"book_list.$[elem].stock_level": count}},
-            array_filters=[{"elem.book_id": book_id, "elem.stock_level": {"$gte": min(0, -count)}}]
+            array_filters=[
+                {"elem.book_id": book_id, "elem.stock_level": {"$gte": min(0, -count)}}
+            ],
         )
         return result.modified_count
 
