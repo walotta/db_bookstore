@@ -74,3 +74,11 @@ class UserInterface:
             },
         )
         return result.modified_count
+
+    def add_order(self, user_id: str, order_id: str) -> int:
+        # TODO: check this copilot-generated code for correctness
+        result = self.userCol.update_one(
+            {"user_id": user_id},
+            {"$push": {"order_id_list": order_id}},
+        )
+        return result.modified_count

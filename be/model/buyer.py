@@ -186,3 +186,32 @@ class Buyer:
             return 530, "{}".format(str(e))
 
         return 200, "ok"
+
+    def query_order(
+        self, user_id: str, order_id: str
+    ) -> Tuple[int, str, Dict[str, Any]]:
+        try:
+            match_order = self.db.new_order.find_new_order(order_id)
+            if match_order is None:
+                return error.error_invalid_order_id(order_id)
+            if match_order.user_id != user_id:
+                return error.error_authorization_fail()
+        except PyMongoError as e:
+            return 528, "{}".format(str(e)), {}
+        except BaseException as e:
+            return 530, "{}".format(str(e)), {}
+        return 200, "ok", match_order.to_dict()
+
+    def query_order_id_list(
+        self, user_id: str, password: str
+    ) -> Tuple[int, str, List[str]]:
+        try:
+            code, message = self.check_password(user_id, password)
+            if code != 200:
+                return code, message, []
+            order_list = self.db.order.get_order_list(user_id)
+        except PyMongoError as e:
+            return 528, "{}".format(str(e)), []
+        except BaseException as e:
+            return 530, "{}".format(str(e)), []
+        return 200, "ok", order_list
