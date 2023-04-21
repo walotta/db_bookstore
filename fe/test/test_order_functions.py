@@ -101,6 +101,6 @@ class TestOrderFunctions:
                 assert code == 200
             else:
                 code = self.buyer.cancel_order(order_id)
-                assert code != 200
+                assert code == 520
         code = self.buyer.cancel_order("not_exist_order_id")
-        assert code != 200
+        assert code == 518
