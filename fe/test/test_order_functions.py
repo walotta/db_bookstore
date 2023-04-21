@@ -52,13 +52,17 @@ class TestOrderFunctions:
             self.price_list.append(total_price)
         yield
 
-    def test_query_order(self):
+    def test_order_functions(self):
         for i in range(self.order_num):
             order_id = self.order_id_list[i]
             total_price = self.price_list[i]
-            status = random.randint(0, 3)
+            status = random.randint(0, 4)
             self.status_list.append(status)
             if status == 0:
+                continue
+            if status == 4:
+                code = self.buyer.cancel_order(order_id)
+                assert code == 200
                 continue
             code = self.buyer.add_funds(total_price)
             assert code == 200

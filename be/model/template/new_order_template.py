@@ -7,6 +7,7 @@ class STATUS(Enum):
     PAID = 1
     SHIPPED = 2
     RECEIVED = 3
+    CANCELED = 4
 
 
 class NewOrderBookItemTemp:

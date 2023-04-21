@@ -83,3 +83,14 @@ class Buyer:
         r = requests.post(url, headers=headers, json=json)
         response_json = r.json()
         return r.status_code, response_json.get("order_id_list")
+    
+    def cancel_order(self, order_id: str) -> int:
+        json = {
+            "user_id": self.user_id,
+            "password": self.password,
+            "order_id": order_id,
+        }
+        url = urljoin(self.url_prefix, "cancel_order")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        return r.status_code

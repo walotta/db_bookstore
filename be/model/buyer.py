@@ -219,6 +219,38 @@ class Buyer:
         except PyMongoError as e:
             return 528, "{}".format(str(e)), []
         except BaseException as e:
-            print(e)
             return 530, "{}".format(str(e)), []
         return 200, "ok", order_list
+    
+    def cancel_order(self, user_id: str, password: str, order_id: str) -> Tuple[int, str]:
+        try:
+            result = self.db.user.get_password(user_id)
+            if result is None:
+                return error.error_authorization_fail()
+            if result != password:
+                return error.error_authorization_fail()
+
+            match_order = self.db.new_order.find_new_order(order_id)
+            if match_order is None:
+                return error.error_invalid_order_id(order_id)
+            if match_order.user_id != user_id:
+                return error.error_authorization_fail()
+
+            status: Optional[STATUS] = self.db.new_order.find_order_status(order_id)
+            if status is None:
+                return error.error_invalid_order_id(order_id)
+            if status != STATUS.INIT:
+                return error.error_order_status(order_id, status, STATUS.INIT)
+
+            modified_count = self.db.new_order.update_new_order_status(
+                order_id, STATUS.CANCELED
+            )
+            if modified_count == 0:
+                return error.error_invalid_order_id(order_id)
+
+        except PyMongoError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+
+        return 200, "ok"
