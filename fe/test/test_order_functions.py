@@ -92,13 +92,15 @@ class TestOrderFunctions:
                 tot_price = tot_price + book["price"] * book["count"]
             assert tot_price == self.price_list[i]
 
-        def test_cancel_error_status(self):
-            for i in range(self.order_num):
-                order_id = self.order_id_list[i]
-                status = self.status_list[i]
-                if status == 0:
-                    code = self.buyer.cancel_order(order_id)
-                    assert code == 200
-                else:
-                    code = self.buyer.cancel_order(order_id)
-                    assert code != 200
+    def test_cancel_error_status(self):
+        for i in range(self.order_num):
+            order_id = self.order_id_list[i]
+            status = self.status_list[i]
+            if status == 0:
+                code = self.buyer.cancel_order(order_id)
+                assert code == 200
+            else:
+                code = self.buyer.cancel_order(order_id)
+                assert code != 200
+        code = self.buyer.cancel_order("not_exist_order_id")
+        assert code != 200
