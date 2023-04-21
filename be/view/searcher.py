@@ -48,27 +48,25 @@ def find_book():
 
     s = searcher.Searcher()
 
-    if store_id is None:
-        flag=False
+    if kind == "one_dict":
+        total_page, books = s.find_book_with_one_dict(
+            dict_name, value[0], page_number, store_id
+        )
+    elif kind == "tags":
+        total_page, books = s.find_book_with_tag(value, page_number, store_id)
+    elif kind == "content":
+        total_page, books = s.find_book_with_content(value[0], page_number, store_id)
     else:
-        flag=True
-
-    if kind=='one_dict':
-        if flag:
-            pass
-        else:
-            pass
         pass
-    elif kind=='tags':
-        pass
-    elif kind=='content':
-        pass
-    else:
-        return None, 0 # todo: check error code
 
-
-
-
-    code, book = s.find_book_with_one_dict(dict_name, value)
-    return jsonify({"book": book}), code
-
+    code = 200
+    return (
+        jsonify(
+            {
+                "current_page": page_number,
+                "total_page": total_page,
+                "book_information": books,
+            }
+        ),
+        code
+    )
