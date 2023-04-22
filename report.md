@@ -131,7 +131,7 @@ We provide an API for diverse search needs. you can search by the book's title, 
 
 ### database operation design
 
-The main reason why documents are designed like this and why setting the index like this is already written in the [table](##Database design).
+The main reason why documents are designed like this and why setting the index like this is already written in the [table](#Database design).
 
 ### Test case design
 
@@ -153,7 +153,7 @@ collaborate with GitHub
 
 * Collaborate with the GitHub repo: [db_homework](https://github.com/walotta/db_bookstore)
 * Use **Pull requests** to merge code from different collaborators, see [here](https://github.com/walotta/db_bookstore/pulls)
-* Use **Issus** to discuss the problems which are hard to decide, see [here](https://github.com/walotta/db_bookstore/issues)
+* Use **Issues** to discuss the problems which are hard to decide, see [here](https://github.com/walotta/db_bookstore/issues)
 * Use **GitHub Action** to auto-check the `Code Format` of the code by `black`, the `Type check` of code by `mypy`, and the `correctness` of the code by `pytest`, see the [GitHub action config](https://github.com/walotta/db_bookstore/tree/master/.github/workflows) and [action detail](https://github.com/walotta/db_bookstore/actions)
 * Use **Branch** to make it possible for each collaborator can write and contribute code independently
 
