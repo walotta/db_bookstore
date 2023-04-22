@@ -21,8 +21,10 @@ class DBClient:
         )
         self.bookInfoCol: Collection[Any] = self.db["book_info"]
         self.bookInfoCol.create_index([("tags", 1)])
+        self.bookInfoCol.create_index([("content", 1)])
         self.newOrderCol: Collection[Any] = self.db["new_order"]
         self.newOrderCol.create_index([("order_id", 1)], unique=True)
+        self.newOrderCol.create_index([("create_time", 1)])
 
     def database_reset(self) -> None:
         self.client.drop_database(self.database)

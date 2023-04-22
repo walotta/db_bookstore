@@ -1,5 +1,9 @@
 # bookstore
 
+## 具体项目报告
+
+详见： [report.md](report.md)
+
 ## 功能
 
 实现一个提供网上购书功能的网站后端。<br>
@@ -37,8 +41,8 @@
 用户可以查自已的历史订单，用户也可以取消订单。<br>
 取消定单可由买家主动地取消定单，或者买家下单后，经过一段时间超时仍未付款，定单也会自动取消。 <br>
 
-
 ## bookstore目录结构
+
 ```
 bookstore
   |-- be                            后端
@@ -78,7 +82,7 @@ bookstore
 （注意：如果提示"RuntimeError: Not running with the Werkzeug Server"，请输入下述命令，将flask和Werkzeug的版本均降低为2.0.0。  
 
      pip install flask==2.0.0  
-
+    
      pip install Werkzeug==2.0.0）
 
 ## 要求
@@ -96,7 +100,7 @@ bookstore
 提取码：
 
     hj6q
-    
+
 2.在完成前60%功能的基础上，继续实现后40%功能，要有接口、后端逻辑实现、数据库操作、代码测试。对所有接口都要写test case，通过测试并计算测试覆盖率（尽量提高测试覆盖率）。
 
 3.尽量使用索引，对程序与数据库执行的性能有考量
