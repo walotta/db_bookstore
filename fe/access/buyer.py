@@ -33,7 +33,6 @@ class Buyer:
             "create_time": create_time,
             "expire_time": expire_time,
         }
-        # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "new_order")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)

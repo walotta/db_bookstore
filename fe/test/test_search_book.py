@@ -28,7 +28,11 @@ class TestSearchBook:
         # self.store_list: List[Seller] = []
         self.store_id_list = []
 
-        for i in range(self.store_number):
+        self.debug_store = [[],[],[],[],[]]
+        self.debug_store_content = [[],[],[],[],[]]
+        self.debug_index = [[],[],[],[],[]]
+
+        for _ in range(self.store_number):
             new_store_id = "test_add_books_store_id_{}".format(str(uuid.uuid1()))
             code = self.seller.create_store(new_store_id)
             # self.store_list.append(new_seller)
@@ -41,13 +45,16 @@ class TestSearchBook:
         max_book_count = 1000
         if rows > max_book_count:
             start = random.randint(0, rows - max_book_count)
-        size = random.randint(1, max_book_count)
+        size = random.randint(1, max_book_count - start)
         self.books = self.book_db.get_book_info(start, size)
 
         # put books into sellers
         for bk in range(len(self.books)):
             cu_store_id = self.store_id_list[bk % self.store_number]
             code = self.seller.add_book(cu_store_id, 1, self.books[bk])
+            self.debug_store[bk % self.store_number].append(self.books[bk].title)
+            self.debug_store_content[bk % self.store_number].append(self.books[bk].content)
+            self.debug_index[bk % self.store_number].append(bk)
             assert code == 200
 
         yield
@@ -144,14 +151,14 @@ class TestSearchBook:
                     )
 
             # get our answer for request
-            cu_page = 0
+            cu_page = 1
             total_page = 1
             check_list: List[Tuple[str, str]] = []
             while cu_page <= total_page:
-                cu_page = cu_page + 1
                 code, cu_page, total_page, temp_list = self.searcher.find_book(
                     "tags", None, target_tags, None, cu_page
                 )
+                cu_page = cu_page + 1
                 assert code == 200
                 for k in temp_list:
                     # filter for data generate by other test
@@ -195,14 +202,14 @@ class TestSearchBook:
                     )
 
             # get our answer for request
-            cu_page = 0
+            cu_page = 1
             total_page = 1
             check_list: List[Tuple[str, str]] = []
             while cu_page <= total_page:
-                cu_page = cu_page + 1
                 code, cu_page, total_page, temp_list = self.searcher.find_book(
                     "content", None, target_contents, None, cu_page
                 )
+                cu_page = cu_page + 1
                 assert code == 200
                 for k in temp_list:
                     # filter for data generate by other test
@@ -210,9 +217,6 @@ class TestSearchBook:
                         check_list.append((k[0], k[1]))
 
             # compare answer_list and check_list
-
-            print("answer_list=", answer_list)
-            print("check_list=", check_list)
             ans = set(answer_list)
             chk = set(check_list)
             assert ans == chk

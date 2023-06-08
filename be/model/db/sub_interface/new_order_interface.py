@@ -1,46 +1,84 @@
 from ..db_client import DBClient
-from pymongo.collection import Collection
 from ...template.new_order_template import NewOrderTemp, NewOrderBookItemTemp
+from ...template.sqlClass.order_sql import OrderSQL
 from typing import Optional, List, Dict, Any
 from ...template.new_order_template import STATUS
 
 
 class NewOrderInterface:
     def __init__(self, conn: DBClient):
-        self.newOrderCol: Collection = conn.newOrderCol
+        self.session_maker = conn.DBsession
 
     def insert_new_order(self, new_order: NewOrderTemp):
-        self.newOrderCol.insert_one(new_order.to_dict())
+        session = self.session_maker()
+        for book in new_order.book_list:
+            session.add(
+                OrderSQL(
+                    order_id=new_order.order_id,
+                    user_id=new_order.user_id,
+                    store_id=new_order.store_id,
+                    book_id=book.book_id,
+                    count=book.count,
+                    price=book.price,
+                    create_time=new_order.create_time,
+                    status=new_order.status.value,
+                )
+            )
+        session.commit()
+        session.close()
 
     def find_new_order(self, order_id: str) -> Optional[NewOrderTemp]:
-        doc = self.newOrderCol.find_one({"order_id": order_id})
-        if doc is None:
+        session = self.session_maker()
+        orders = session.query(OrderSQL).filter_by(order_id=order_id).all()
+        session.close()
+        if len(orders) == 0:
             return None
         else:
-            return NewOrderTemp.from_dict(doc)
+            book_list = []
+            for o in orders:
+                book_list.append(NewOrderBookItemTemp(o.book_id, o.count, o.price))
+            o = orders[0]
+            return NewOrderTemp(
+                o.order_id,
+                o.user_id,
+                o.store_id,
+                book_list,
+                o.create_time,
+                STATUS(o.status),
+            )
 
     def delete_order(self, order_id: str) -> int:
-        result = self.newOrderCol.delete_one({"order_id": order_id})
-        return result.deleted_count
+        session = self.session_maker()
+        result = session.query(OrderSQL).filter_by(order_id=order_id).delete()
+        session.commit()
+        session.close()
+        return result
 
     def order_id_exist(self, order_id: str) -> bool:
-        cursor = self.newOrderCol.find_one({"order_id": order_id})
-        return cursor is not None
+        session = self.session_maker()
+        match_order = session.query(OrderSQL).filter_by(order_id=order_id).first()
+        session.close()
+        return match_order is not None
 
     def update_new_order_status(self, order_id: str, status: STATUS) -> int:
-        result = self.newOrderCol.update_one(
-            {"order_id": order_id}, {"$set": {"status": status.value}}
+        session = self.session_maker()
+        result = (
+            session.query(OrderSQL)
+            .filter_by(order_id=order_id)
+            .update({"status": status.value})
         )
-        return result.modified_count
+        session.commit()
+        session.close()
+        return result
 
     def find_order_status(self, order_id: str) -> Optional[STATUS]:
-        result = self.newOrderCol.find_one(
-            {"order_id": order_id}, {"_id": 0, "status": 1}
-        )
+        session = self.session_maker()
+        result = session.query(OrderSQL).filter_by(order_id=order_id).first()
+        session.close()
         if result is None:
             return None
         else:
-            return STATUS(result["status"])
+            return STATUS(result.status)
 
     def auto_cancel_expired_order(
         self, current_time: int, expire_time: int
@@ -49,26 +87,12 @@ class NewOrderInterface:
         # and status == INIT(0), change its status to CANCELLED(4)
         # returns: a list of order_id, represent all cancelled order
 
-        pipeline: List[Dict[str, Any]] = [
-            {"$match": {"status": 0}},
-            {
-                "$project": {
-                    "order_id": 1,
-                    "create_time": 1,
-                    "status": 1,
-                    "expired": {
-                        "$gte": [
-                            {"$add": ["$create_time", expire_time]},
-                            current_time,
-                        ]
-                    },
-                }
-            },
-            {"$match": {"expired": True}},
-        ]
-        results = self.newOrderCol.aggregate(pipeline=pipeline)
+        session = self.session_maker()
+        result = session.query(OrderSQL).filter_by(status=0).all()
+        session.close()
         order_id_list = []
-        for doc in results:
-            order_id_list.append(doc["order_id"])
-            self.update_new_order_status(doc["order_id"], STATUS.CANCELED)
+        for o in result:
+            if o.create_time + expire_time >= current_time:
+                order_id_list.append(o.order_id)
+                self.update_new_order_status(o.order_id, STATUS.CANCELED)
         return order_id_list

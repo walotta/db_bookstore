@@ -1,37 +1,25 @@
-import pymongo
-from pymongo import MongoClient
-from pymongo.database import Database
-from pymongo.collection import Collection
+from sqlalchemy.engine import Engine
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from typing import Any, Optional
+from sqlalchemy import create_engine
+from ..template.sqlClass.base import Base
 
 
 class DBClient:
-    def __init__(self, connectUrl="mongodb://localhost:27017/", database="bookstore"):
-        self.connectUrl: str = connectUrl
-        self.database: str = database
-        self.client: MongoClient = pymongo.MongoClient(connectUrl)
+    def __init__(self):
+        self.engine: Engine = create_engine(
+            "postgresql://postgres:postgres@localhost:5432/postgres",
+            pool_size=8,
+            pool_recycle=60 * 30,
+        )
+        self.DBsession = sessionmaker(bind=self.engine)
 
     def database_init(self) -> None:
-        self.db: Database = self.client[self.database]
-        self.userCol: Collection[Any] = self.db["user"]
-        self.userCol.create_index([("user_id", 1)], unique=True)
-        self.storeCol: Collection[Any] = self.db["store"]
-        self.storeCol.create_index(
-            [("store_id", 1), ("book_list.book_id", 1)], unique=True
-        )
-        self.bookInfoCol: Collection[Any] = self.db["book_info"]
-        self.bookInfoCol.create_index([("tags", 1)])
-        self.bookInfoCol.create_index([("content", 1)])
-        self.newOrderCol: Collection[Any] = self.db["new_order"]
-        self.newOrderCol.create_index([("order_id", 1)], unique=True)
-        self.newOrderCol.create_index([("create_time", 1)])
+        Base.metadata.create_all(self.engine)
 
     def database_reset(self) -> None:
-        self.client.drop_database(self.database)
-        self.database_init()
-
-    def database_close(self) -> None:
-        self.client.close()
+        self.DBsession.close_all()
 
 
 database_instance: Optional[DBClient] = None

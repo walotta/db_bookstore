@@ -68,7 +68,6 @@ class Buyer:
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
             logging.info("530, {}".format(str(e)))
-            print("530, {}".format(str(e)))
             return 530, "{}".format(str(e)), ""
 
         return 200, "ok", order_id

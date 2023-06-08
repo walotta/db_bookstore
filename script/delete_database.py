@@ -1,10 +1,14 @@
-import pymongo
+from sqlalchemy import create_engine
+from be.model.template.sqlClass.base import Base
 
 
 def delete_database():
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
-    client.drop_database("bookstore")
-    assert "bookstore" not in client.list_database_names()
+    engine = create_engine(
+        "postgresql://postgres:postgres@localhost:5432/postgres",
+        pool_size=8,
+        pool_recycle=60 * 30,
+    )
+    Base.metadata.drop_all(engine)
 
 
 if __name__ == "__main__":

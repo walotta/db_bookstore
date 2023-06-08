@@ -82,7 +82,8 @@ class TestOrderFunctions:
     def test_query_order(self):
         code, order_id_list = self.buyer.query_order_id_list()
         assert code == 200
-        assert order_id_list == self.order_id_list
+        assert sorted(order_id_list) == sorted(self.order_id_list)
+        order_id_list = self.order_id_list
         order_list = [self.buyer.query_order(order_id)[1] for order_id in order_id_list]
         for i in range(self.order_num):
             order = order_list[i]

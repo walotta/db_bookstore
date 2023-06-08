@@ -28,8 +28,11 @@ class Searcher:
         return_list = self.db.searcher.find_book_with_one_dict(
             dictName, value, st, ed, return_dict, store_id
         )
-        # print(return_list)
-        total_page = (number + self.page_size - 1) // self.page_size - 1
+        total_page = (
+            number // self.page_size
+            if number % self.page_size == 0
+            else number // self.page_size + 1
+        )
         return total_page, [(i["store_id"], i["title"]) for i in return_list]
 
     def find_book_with_content(
@@ -44,7 +47,11 @@ class Searcher:
         return_list = self.db.searcher.find_book_with_content(
             content_piece, st, ed, return_dict, store_id
         )
-        total_page = (number + self.page_size - 1) // self.page_size - 1
+        total_page = (
+            number // self.page_size
+            if number % self.page_size == 0
+            else number // self.page_size + 1
+        )
         return total_page, [(i["store_id"], i["title"]) for i in return_list]
 
     def find_book_with_tag(
@@ -59,5 +66,9 @@ class Searcher:
         return_list = self.db.searcher.find_book_with_tag(
             tags, st, ed, return_dict, store_id
         )
-        total_page = (number + self.page_size - 1) // self.page_size - 1
+        total_page = (
+            number // self.page_size
+            if number % self.page_size == 0
+            else number // self.page_size + 1
+        )
         return total_page, [(i["store_id"], i["title"]) for i in return_list]

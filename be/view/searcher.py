@@ -44,7 +44,6 @@ def find_book() -> Any:
     """
     assert request.json is not None
     code = 200
-    # print("debug: reaquest.json=",request.json)
     kind: str = request.json.get("kind")
     store_id: Optional[str] = request.json.get("store_id")
     dict_name: Optional[str] = request.json.get("dict_name")
@@ -55,7 +54,6 @@ def find_book() -> Any:
 
     try:
         if kind == "one_dict":
-            # print("debug: value=",value,"Type of value is",type(value))
             assert type(value) is int or type(value) is str
             assert type(dict_name) is str
             total_page, books = s.find_book_with_one_dict(
@@ -71,7 +69,7 @@ def find_book() -> Any:
             assert False
     except BaseException as e:
         logging.info("523, " + error.error_code[523])
-        return 523, error.error_code[523]
+        return 523, error.error_code[523] + str(e)
 
     except:
         logging.info("522, {}".format(error.error_code[522]))

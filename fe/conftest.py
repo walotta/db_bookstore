@@ -4,16 +4,15 @@ from urllib.parse import urljoin
 from be import serve
 from fe import conf
 from typing import Optional
-import pymongo
+from be.model.template.sqlClass.base import Base
+from sqlalchemy import create_engine
+from fe.test.drop_table import drop_all
 
 thread: Optional[threading.Thread] = None
 
 
 def delete_database():
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
-    client.drop_database("bookstore")
-    assert "bookstore" not in client.list_database_names()
-
+    drop_all()
 
 # 修改这里启动后端程序，如果不需要可删除这行代码
 def run_backend():

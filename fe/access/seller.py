@@ -20,7 +20,6 @@ class Seller:
             "user_id": self.seller_id,
             "store_id": store_id,
         }
-        # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "create_store")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
@@ -33,7 +32,6 @@ class Seller:
             "book_info": book_info.__dict__,
             "stock_level": stock_level,
         }
-        # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "add_book")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
@@ -48,7 +46,6 @@ class Seller:
             "book_id": book_id,
             "add_stock_level": add_stock_num,
         }
-        # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "add_stock_level")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
@@ -60,7 +57,6 @@ class Seller:
             "store_id": store_id,
             "book_id": book_id,
         }
-        # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "get_book_stock_level")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
@@ -71,7 +67,6 @@ class Seller:
             "user_id": self.seller_id,
             "order_id": order_id,
         }
-        # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "ship_order")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
@@ -84,7 +79,6 @@ class Seller:
             "current_time": current_time,
             "expire_time": expire_time,
         }
-        # print(simplejson.dumps(json))
         url = urljoin(self.url_prefix, "auto_cancel_expired_order")
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
