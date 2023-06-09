@@ -6,36 +6,36 @@ from ...template.sqlClass.book_info_sql import BookInfoSQL
 from ...template.sqlClass.book_info_tags_sql import BookInfoTagsSQL
 from ..db_client import DBClient
 from sqlalchemy import join, func
-import re
+from sqlalchemy.orm import Session
 
 
 class SearcherInterface:
-    def __init__(self, conn: DBClient):
-        self.session_maker = conn.DBsession
-        self.engine = conn.engine
+    def __init__(self):
+        pass
 
     def get_one_info_by_info_id(
-        self, info_id: str, dictName: str
+        self, info_id: str, dictName: str, session: Session
     ) -> Optional[Union[str, int, List[str]]]:
         """
         This function will return a single information of match info_id
         """
-        session = self.session_maker()
         result = (
             session.query(getattr(BookInfoSQL, dictName))
             .filter(BookInfoSQL.book_id == info_id)
             .first()
         )
-        session.close()
         if result is None:
             return None
         else:
             return result[0]
 
     def find_book_with_one_dict_n(
-        self, dict_name: str, value: Union[int, str], store_id: Optional[str] = None
+        self,
+        dict_name: str,
+        value: Union[int, str],
+        session: Session,
+        store_id: Optional[str] = None,
     ) -> int:
-        session = self.session_maker()
         if store_id is None:
             result = (
                 session.query(BookInfoSQL)
@@ -53,7 +53,6 @@ class SearcherInterface:
                 .filter(getattr(BookInfoSQL, dict_name) == value)
                 .count()
             )
-        session.close()
         return result
 
     def find_book_with_one_dict(
@@ -63,6 +62,7 @@ class SearcherInterface:
         st: int,
         ed: int,
         return_dict: List[str],
+        session: Session,
         store_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """
@@ -82,7 +82,6 @@ class SearcherInterface:
         The function returns some books with book[dictName]=value
         This function would not search by book_id
         """
-        session = self.session_maker()
         stat = join(
             BookInfoSQL, StoreBookSQL, BookInfoSQL.book_id == StoreBookSQL.book_id
         )
@@ -103,7 +102,6 @@ class SearcherInterface:
                 .slice(st - 1, ed)
                 .all()
             )
-        session.close()
         ans = []
         for r in result:
             tmp = dict()
@@ -111,15 +109,14 @@ class SearcherInterface:
                 if k == "store_id":
                     v = r[1]
                 else:
-                    v = self.get_one_info_by_info_id(r[0], k)
+                    v = self.get_one_info_by_info_id(r[0], k, session)
                 tmp[k] = v
             ans.append(tmp)
         return ans
 
     def find_book_with_content_n(
-        self, content_piece: str, store_id: Optional[str] = None
+        self, content_piece: str, session: Session, store_id: Optional[str] = None
     ) -> int:
-        session = self.session_maker()
         stat = join(
             BookInfoSQL, StoreBookSQL, BookInfoSQL.book_id == StoreBookSQL.book_id
         )
@@ -138,7 +135,6 @@ class SearcherInterface:
                 .filter(BookInfoSQL.content.like(f"%{content_piece}%"))
                 .count()
             )
-        session.close()
         return result
 
     def find_book_with_content(
@@ -147,12 +143,12 @@ class SearcherInterface:
         st: int,
         ed: int,
         return_dict: List[str],
+        session: Session,
         store_id: Optional[str] = None,
     ) -> List[Dict[str, str]]:
         """
         This function returns a book_id which have a part of content_piece
         """
-        session = self.session_maker()
         stat = join(
             BookInfoSQL, StoreBookSQL, BookInfoSQL.book_id == StoreBookSQL.book_id
         )
@@ -173,7 +169,6 @@ class SearcherInterface:
                 .slice(st - 1, ed)
                 .all()
             )
-        session.close()
         ans = []
         for r in result:
             tmp = dict()
@@ -181,13 +176,14 @@ class SearcherInterface:
                 if k == "store_id":
                     v = r[1]
                 else:
-                    v = self.get_one_info_by_info_id(r[0], k)
+                    v = self.get_one_info_by_info_id(r[0], k, session)
                 tmp[k] = v
             ans.append(tmp)
         return ans
 
-    def get_book_tags(self, book_id: str, store_id: Optional[str] = None) -> List[str]:
-        session = self.session_maker()
+    def get_book_tags(
+        self, book_id: str, session: Session, store_id: Optional[str] = None
+    ) -> List[str]:
         if store_id is None:
             result = session.query(BookInfoTagsSQL.tag).filter_by(book_id=book_id).all()
         else:
@@ -203,13 +199,11 @@ class SearcherInterface:
                 .filter(BookInfoTagsSQL.book_id == book_id)
                 .all()
             )
-        session.close()
         return [i[0] for i in result]
 
     def find_book_with_tag_n(
-        self, tags: List[str], store_id: Optional[str] = None
+        self, tags: List[str], session: Session, store_id: Optional[str] = None
     ) -> int:
-        session = self.session_maker()
         subq = (
             session.query(BookInfoTagsSQL.book_id.label("bid"))
             .filter(BookInfoTagsSQL.tag.in_(tags))
@@ -231,7 +225,6 @@ class SearcherInterface:
                 .filter(StoreBookSQL.store_id == store_id)
                 .count()
             )
-        session.close()
         return result
 
     def find_book_with_tag(
@@ -240,12 +233,12 @@ class SearcherInterface:
         st: int,
         ed: int,
         return_dict: List[str],
+        session: Session,
         store_id: Optional[str] = None,
     ) -> List[Dict[str, str]]:
         """
         This function returns a book_id which have a tag
         """
-        session = self.session_maker()
         subq = (
             session.query(BookInfoTagsSQL.book_id.label("bid"))
             .filter(BookInfoTagsSQL.tag.in_(tags))
@@ -269,7 +262,6 @@ class SearcherInterface:
                 .slice(st - 1, ed)
                 .all()
             )
-        session.close()
         ans = []
         for r in result:
             tmp = dict()
@@ -277,7 +269,7 @@ class SearcherInterface:
                 if k == "store_id":
                     v = r[1]
                 else:
-                    v = self.get_one_info_by_info_id(r[0], k)
+                    v = self.get_one_info_by_info_id(r[0], k, session)
                 tmp[k] = v
             ans.append(tmp)
         return ans

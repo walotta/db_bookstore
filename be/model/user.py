@@ -58,6 +58,7 @@ class User:
 
     def register(self, user_id: str, password: str):
         try:
+            session = self.db.session_maker()
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
             new_user = UserTemp(
@@ -67,27 +68,38 @@ class User:
                 token=token,
                 terminal=terminal,
             )
-            self.db.user.insert_one_user(new_user)
+            self.db.user.insert_one_user(new_user, session)
         except DuplicateKeyError:
+            session.close()
             return error.error_exist_user_id(user_id)
+        session.commit()
+        session.close()
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> Tuple[int, str]:
-        db_token = self.db.user.get_token(user_id)
+        session = self.db.session_maker()
+        db_token = self.db.user.get_token(user_id, session)
         if token is None:
+            session.close()
             return error.error_authorization_fail()
         if not self.__check_token(user_id, db_token, token):
+            session.close()
             return error.error_authorization_fail()
+        session.close()
         return 200, "ok"
 
     def check_password(self, user_id: str, password: str) -> Tuple[int, str]:
-        db_password = self.db.user.get_password(user_id)
+        session = self.db.session_maker()
+        db_password = self.db.user.get_password(user_id, session)
         if db_password is None:
+            session.close()
             return error.error_authorization_fail()
 
         if password != db_password:
+            session.close()
             return error.error_authorization_fail()
 
+        session.close()
         return 200, "ok"
 
     def login(self, user_id: str, password: str, terminal: str) -> Tuple[int, str, str]:
@@ -97,16 +109,22 @@ class User:
             if code != 200:
                 return code, message, ""
 
+            session = self.db.session_maker()
             token = jwt_encode(user_id, terminal)
             modified_count = self.db.user.update_token_terminal(
-                user_id, token, terminal
+                user_id, token, terminal, session
             )
-            if modified_count == 0:
+            if modified_count <= 0:
+                session.close()
                 return error.error_authorization_fail() + ("",)
         except PyMongoError as e:
+            session.close()
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
+            session.close()
             return 530, "{}".format(str(e)), ""
+        session.commit()
+        session.close()
         return 200, "ok", token
 
     def logout(self, user_id: str, token: str) -> Tuple[int, str]:
@@ -115,19 +133,25 @@ class User:
             if code != 200:
                 return code, message
 
+            session = self.db.session_maker()
             terminal = "terminal_{}".format(str(time.time()))
             dummy_token = jwt_encode(user_id, terminal)
 
             modified_count = self.db.user.update_token_terminal(
-                user_id, dummy_token, terminal
+                user_id, dummy_token, terminal, session
             )
-            if modified_count == 0:
+            if modified_count <= 0:
+                session.close()
                 return error.error_authorization_fail()
 
         except PyMongoError as e:
+            session.close()
             return 528, "{}".format(str(e))
         except BaseException as e:
+            session.close()
             return 530, "{}".format(str(e))
+        session.commit()
+        session.close()
         return 200, "ok"
 
     def unregister(self, user_id: str, password: str) -> Tuple[int, str]:
@@ -136,13 +160,19 @@ class User:
             if code != 200:
                 return code, message
 
-            deleted_count = self.db.user.delete_user(user_id)
+            session = self.db.session_maker()
+            deleted_count = self.db.user.delete_user(user_id, session)
             if deleted_count != 1:
+                session.close()
                 return error.error_authorization_fail()
         except PyMongoError as e:
+            session.close()
             return 528, "{}".format(str(e))
         except BaseException as e:
+            session.close()
             return 530, "{}".format(str(e))
+        session.commit()
+        session.close()
         return 200, "ok"
 
     def change_password(
@@ -153,6 +183,7 @@ class User:
             if code != 200:
                 return code, message
 
+            session = self.db.session_maker()
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
             modified_count = self.db.user.update_password(
@@ -160,12 +191,18 @@ class User:
                 password=new_password,
                 token=token,
                 terminal=terminal,
+                session=session,
             )
-            if modified_count == 0:
+            if modified_count <= 0:
+                session.close()
                 return error.error_authorization_fail()
 
         except PyMongoError as e:
+            session.close()
             return 528, "{}".format(str(e))
         except BaseException as e:
+            session.close()
             return 530, "{}".format(str(e))
+        session.commit()
+        session.close()
         return 200, "ok"

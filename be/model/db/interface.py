@@ -8,7 +8,8 @@ from .sub_interface.searcher_interface import SearcherInterface
 class DBInterface:
     def __init__(self):
         self.conn: DBClient = get_db_conn()
-        self.store = StoreInterface(self.conn)
-        self.user = UserInterface(self.conn)
-        self.new_order = NewOrderInterface(self.conn)
-        self.searcher = SearcherInterface(self.conn)
+        self.session_maker = self.conn.DBsession
+        self.store = StoreInterface()
+        self.user = UserInterface()
+        self.new_order = NewOrderInterface()
+        self.searcher = SearcherInterface()
