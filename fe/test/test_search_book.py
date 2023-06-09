@@ -28,9 +28,9 @@ class TestSearchBook:
         # self.store_list: List[Seller] = []
         self.store_id_list = []
 
-        self.debug_store = [[],[],[],[],[]]
-        self.debug_store_content = [[],[],[],[],[]]
-        self.debug_index = [[],[],[],[],[]]
+        self.debug_store = [[], [], [], [], []]
+        self.debug_store_content = [[], [], [], [], []]
+        self.debug_index = [[], [], [], [], []]
 
         for _ in range(self.store_number):
             new_store_id = "test_add_books_store_id_{}".format(str(uuid.uuid1()))
@@ -53,7 +53,9 @@ class TestSearchBook:
             cu_store_id = self.store_id_list[bk % self.store_number]
             code = self.seller.add_book(cu_store_id, 1, self.books[bk])
             self.debug_store[bk % self.store_number].append(self.books[bk].title)
-            self.debug_store_content[bk % self.store_number].append(self.books[bk].content)
+            self.debug_store_content[bk % self.store_number].append(
+                self.books[bk].content
+            )
             self.debug_index[bk % self.store_number].append(bk)
             assert code == 200
 
