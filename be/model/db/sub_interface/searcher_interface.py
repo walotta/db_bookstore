@@ -5,7 +5,7 @@ from ...template.sqlClass.book_info_pic_sql import BookInfoPicSQL
 from ...template.sqlClass.book_info_sql import BookInfoSQL
 from ...template.sqlClass.book_info_tags_sql import BookInfoTagsSQL
 from ..db_client import DBClient
-from sqlalchemy import join
+from sqlalchemy import join, func
 import re
 
 
@@ -20,34 +20,41 @@ class SearcherInterface:
         """
         This function will return a single information of match info_id
         """
-        with self.engine.connect() as conn:
-            result = conn.execute(
-                f"SELECT {dictName} FROM bookinfo WHERE book_id = '{info_id}'"
-            ).fetchone()
-            if result is None:
-                return None
-            else:
-                return result[0]
+        session = self.session_maker()
+        result = (
+            session.query(getattr(BookInfoSQL, dictName))
+            .filter(BookInfoSQL.book_id == info_id)
+            .first()
+        )
+        session.close()
+        if result is None:
+            return None
+        else:
+            return result[0]
 
     def find_book_with_one_dict_n(
         self, dict_name: str, value: Union[int, str], store_id: Optional[str] = None
     ) -> int:
-        with self.engine.connect() as conn:
-            if store_id is None:
-                result = conn.execute(
-                    f"SELECT COUNT(*) FROM bookinfo WHERE {dict_name} = '{value}'"
-                ).fetchone()
-            else:
-                result = conn.execute(
-                    f"""SELECT COUNT(*)
-                    FROM bookinfo bi
-                    JOIN storebook si ON si.book_id = bi.book_id
-                    WHERE bi.{dict_name} = '{value}' AND si.store_id = '{store_id}'"""
-                ).fetchone()
-        if result is None:
-            return 0
+        session = self.session_maker()
+        if store_id is None:
+            result = (
+                session.query(BookInfoSQL)
+                .filter(getattr(BookInfoSQL, dict_name) == value)
+                .count()
+            )
         else:
-            return result[0]
+            stat = join(
+                BookInfoSQL, StoreBookSQL, BookInfoSQL.book_id == StoreBookSQL.book_id
+            )
+            result = (
+                session.query(BookInfoSQL)
+                .select_from(stat)
+                .filter(StoreBookSQL.store_id == store_id)
+                .filter(getattr(BookInfoSQL, dict_name) == value)
+                .count()
+            )
+        session.close()
+        return result
 
     def find_book_with_one_dict(
         self,
@@ -75,21 +82,28 @@ class SearcherInterface:
         The function returns some books with book[dictName]=value
         This function would not search by book_id
         """
-        with self.engine.connect() as conn:
-            if store_id is None:
-                result = conn.execute(
-                    f"""SELECT bi.book_id, si.store_id 
-                    FROM bookinfo bi
-                    JOIN storebook si ON si.book_id = bi.book_id
-                    WHERE bi.{dict_name} = '{value}' LIMIT {ed-st+1} OFFSET {st-1}"""
-                ).fetchall()
-            else:
-                result = conn.execute(
-                    f"""SELECT bi.book_id, si.store_id 
-                    FROM bookinfo bi
-                    JOIN storebook si ON si.book_id = bi.book_id
-                    WHERE si.store_id = '{store_id}' AND bi.{dict_name} = '{value}' LIMIT {ed-st+1} OFFSET {st-1}"""
-                ).fetchall()
+        session = self.session_maker()
+        stat = join(
+            BookInfoSQL, StoreBookSQL, BookInfoSQL.book_id == StoreBookSQL.book_id
+        )
+        if store_id is None:
+            result = (
+                session.query(BookInfoSQL.book_id, StoreBookSQL.store_id)
+                .select_from(stat)
+                .filter(getattr(BookInfoSQL, dict_name) == value)
+                .slice(st - 1, ed)
+                .all()
+            )
+        else:
+            result = (
+                session.query(BookInfoSQL.book_id, StoreBookSQL.store_id)
+                .select_from(stat)
+                .filter(StoreBookSQL.store_id == store_id)
+                .filter(getattr(BookInfoSQL, dict_name) == value)
+                .slice(st - 1, ed)
+                .all()
+            )
+        session.close()
         ans = []
         for r in result:
             tmp = dict()
@@ -147,8 +161,7 @@ class SearcherInterface:
                 session.query(BookInfoSQL.book_id, StoreBookSQL.store_id)
                 .select_from(stat)
                 .filter(BookInfoSQL.content.like(f"%{content_piece}%"))
-                .limit(ed - st + 1)
-                .offset(st - 1)
+                .slice(st - 1, ed)
                 .all()
             )
         else:
@@ -157,8 +170,7 @@ class SearcherInterface:
                 .select_from(stat)
                 .filter(StoreBookSQL.store_id == store_id)
                 .filter(BookInfoSQL.content.like(f"%{content_piece}%"))
-                .limit(ed - st + 1)
-                .offset(st - 1)
+                .slice(st - 1, ed)
                 .all()
             )
         session.close()
@@ -197,37 +209,30 @@ class SearcherInterface:
     def find_book_with_tag_n(
         self, tags: List[str], store_id: Optional[str] = None
     ) -> int:
-        with self.engine.connect() as conn:
-            tag_list = f"({str(tags)[1:-1]})"
-            if store_id is None:
-                result = conn.execute(
-                    f"""SELECT COUNT(t.book_id)
-                        FROM storebook si
-                        JOIN (
-                            SELECT bt.book_id
-                            FROM bookinfotags bt
-                            WHERE bt.tag IN {tag_list}
-                            GROUP BY bt.book_id
-                            HAVING COUNT(bt.book_id) = {len(tags)}
-                        ) t ON t.book_id = si.book_id"""
-                ).fetchone()
-            else:
-                result = conn.execute(
-                    f"""SELECT COUNT(t.book_id)
-                        FROM storebook si
-                        JOIN (
-                            SELECT bt.book_id
-                            FROM bookinfotags bt
-                            WHERE bt.tag IN {tag_list}
-                            GROUP BY bt.book_id
-                            HAVING COUNT(bt.book_id) = {len(tags)}
-                        ) t ON t.book_id = si.book_id
-                        WHERE si.store_id = {store_id}"""
-                ).fetchone()
-            if result is None:
-                return 0
-            else:
-                return result[0]
+        session = self.session_maker()
+        subq = (
+            session.query(BookInfoTagsSQL.book_id.label("bid"))
+            .filter(BookInfoTagsSQL.tag.in_(tags))
+            .group_by(BookInfoTagsSQL.book_id)
+            .having(func.count(BookInfoTagsSQL.book_id) == len(tags))
+            .subquery()
+        )
+        stat = join(StoreBookSQL, subq, StoreBookSQL.book_id == subq.c.bid)
+        if store_id is None:
+            result = (
+                session.query(subq.c.bid, StoreBookSQL.store_id)
+                .select_from(stat)
+                .count()
+            )
+        else:
+            result = (
+                session.query(subq.c.bid, StoreBookSQL.store_id)
+                .select_from(stat)
+                .filter(StoreBookSQL.store_id == store_id)
+                .count()
+            )
+        session.close()
+        return result
 
     def find_book_with_tag(
         self,
@@ -240,43 +245,39 @@ class SearcherInterface:
         """
         This function returns a book_id which have a tag
         """
-        with self.engine.connect() as conn:
-            tag_list = f"({str(tags)[1:-1]})"
-            if store_id is None:
-                result = conn.execute(
-                    f"""SELECT t.book_id, si.store_id
-                    FROM storebook si
-                    JOIN (
-                        SELECT bt.book_id
-                        FROM bookinfotags bt
-                        WHERE bt.tag IN {tag_list}
-                        GROUP BY bt.book_id
-                        HAVING COUNT(bt.book_id) = {len(tags)}
-                    ) t ON t.book_id = si.book_id
-                    LIMIT {ed-st+1} OFFSET {st-1}"""
-                ).fetchall()
-            else:
-                result = conn.execute(
-                    f"""SELECT t.book_id, si.store_id
-                        FROM storebook si
-                        JOIN (
-                            SELECT bt.book_id
-                            FROM bookinfotags bt
-                            WHERE bt.tag IN {tag_list}
-                            GROUP BY bt.book_id
-                            HAVING COUNT(bt.book_id) = {len(tags)}
-                        ) t ON t.book_id = si.book_id
-                        WHERE si.store_id = {store_id}
-                        LIMIT {ed-st+1} OFFSET {st-1}"""
-                ).fetchall()
-            ans = []
-            for r in result:
-                tmp = dict()
-                for k in return_dict:
-                    if k == "store_id":
-                        v = r[1]
-                    else:
-                        v = self.get_one_info_by_info_id(r[0], k)
-                    tmp[k] = v
-                ans.append(tmp)
-            return ans
+        session = self.session_maker()
+        subq = (
+            session.query(BookInfoTagsSQL.book_id.label("bid"))
+            .filter(BookInfoTagsSQL.tag.in_(tags))
+            .group_by(BookInfoTagsSQL.book_id)
+            .having(func.count(BookInfoTagsSQL.book_id) == len(tags))
+            .subquery()
+        )
+        stat = join(StoreBookSQL, subq, StoreBookSQL.book_id == subq.c.bid)
+        if store_id is None:
+            result = (
+                session.query(subq.c.bid, StoreBookSQL.store_id)
+                .select_from(stat)
+                .slice(st - 1, ed)
+                .all()
+            )
+        else:
+            result = (
+                session.query(subq.c.bid, StoreBookSQL.store_id)
+                .select_from(stat)
+                .filter(StoreBookSQL.store_id == store_id)
+                .slice(st - 1, ed)
+                .all()
+            )
+        session.close()
+        ans = []
+        for r in result:
+            tmp = dict()
+            for k in return_dict:
+                if k == "store_id":
+                    v = r[1]
+                else:
+                    v = self.get_one_info_by_info_id(r[0], k)
+                tmp[k] = v
+            ans.append(tmp)
+        return ans
