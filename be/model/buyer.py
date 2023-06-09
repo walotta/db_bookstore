@@ -52,7 +52,7 @@ class Buyer:
                     return error.error_stock_level_low(book_id) + (order_id,)
 
                 modified_count = self.db.store.add_stock_level(
-                    store_id, book_id, -count,session
+                    store_id, book_id, -count, session
                 )
                 if modified_count <= 0:
                     session.close()
@@ -129,12 +129,12 @@ class Buyer:
                 session.close()
                 return error.error_not_sufficient_funds(order_id)
 
-            modified_count = self.db.user.add_balance(buyer_id, -total_price,session)
+            modified_count = self.db.user.add_balance(buyer_id, -total_price, session)
             if modified_count <= 0:
                 session.close()
                 return error.error_not_sufficient_funds(order_id)
 
-            modified_count = self.db.user.add_balance(seller_id, total_price,session)
+            modified_count = self.db.user.add_balance(seller_id, total_price, session)
 
             if modified_count <= 0:
                 session.close()
@@ -328,7 +328,7 @@ class Buyer:
 
             for book_item in match_order.book_list:
                 self.db.store.add_stock_level(
-                    match_order.store_id, book_item.book_id, book_item.count,session
+                    match_order.store_id, book_item.book_id, book_item.count, session
                 )
 
         except PyMongoError as e:

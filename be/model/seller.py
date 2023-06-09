@@ -81,15 +81,15 @@ class Seller:
     def create_store(self, user_id: str, store_id: str) -> Tuple[int, str]:
         try:
             session = self.db.session_maker()
-            if not self.db.user.user_id_exist(user_id,session):
+            if not self.db.user.user_id_exist(user_id, session):
                 session.close()
                 return error.error_non_exist_user_id(user_id)
-            if self.db.store.store_id_exist(store_id,session):
+            if self.db.store.store_id_exist(store_id, session):
                 session.close()
                 return error.error_exist_store_id(store_id)
 
             new_store = StoreTemp(store_id=store_id, user_id=user_id)
-            self.db.store.insert_one_store(new_store,session)
+            self.db.store.insert_one_store(new_store, session)
         except PyMongoError as e:
             session.close()
             return 528, "{}".format(str(e))
